@@ -1,207 +1,467 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Le mie ricette â€” fit ma golose</title>
+<meta name="theme-color" content="#10231c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NutriCoach">
+<title>NutriCoach — la mia nutrizione</title>
 <style>
   :root{
-    --bg:#f6f6f3; --card:#ffffff; --ink:#1d2421; --muted:#6c726d;
-    --line:#e6e6e1; --accent:#2e7d5b; --accent-soft:#e7f1ec;
-    --amber:#9a6a16; --amber-soft:#f6eddb; --radius:16px;
-    --shadow:0 1px 3px rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.05);
+    --bg:#f4f5f2; --card:#ffffff; --ink:#19211d; --muted:#697069;
+    --line:#e4e6e0; --accent:#27795b; --accent-2:#3a9d77; --accent-soft:#e6f1ec;
+    --amber:#8a5e12; --amber-soft:#f5ecd8; --red:#b3382f; --red-soft:#fae9e7;
+    --radius:18px; --shadow:0 1px 2px rgba(0,0,0,.05),0 10px 30px rgba(0,0,0,.06);
+    --nav-h:64px;
   }
   @media (prefers-color-scheme:dark){
-    :root{ --bg:#14171a; --card:#1d2125; --ink:#eef1ee; --muted:#9aa19c;
-      --line:#2c3238; --accent:#4cc18d; --accent-soft:#1d322a; --amber:#e0b15a; --amber-soft:#322a18;
-      --shadow:0 1px 3px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35); }
+    :root{ --bg:#10141a; --card:#1a2027; --ink:#eef2ef; --muted:#9aa39c;
+      --line:#293039; --accent:#46b88a; --accent-2:#5ccfa0; --accent-soft:#15302587;
+      --amber:#e2b35e; --amber-soft:#33291688; --red:#e7726a; --red-soft:#3a201e88;
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35); }
   }
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0}
+  body{background:var(--bg);color:var(--ink);font-size:17px;line-height:1.6;
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    line-height:1.55;-webkit-font-smoothing:antialiased}
-  header{padding:28px 20px 8px;max-width:1180px;margin:0 auto}
-  h1{font-size:clamp(22px,4.5vw,30px);font-weight:650;margin:0 0 4px;letter-spacing:-.02em}
-  .sub{color:var(--muted);font-size:15px;margin:0}
-  .toolbar{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 86%,transparent);
-    backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line);
-    padding:12px 20px;margin-top:14px}
-  .toolbar-inner{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
-  #q{width:100%;padding:11px 14px;border:1px solid var(--line);border-radius:12px;background:var(--card);
-    color:var(--ink);font-size:15px;outline:none}
+    -webkit-font-smoothing:antialiased;padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom))}
+  h1,h2,h3,h4{letter-spacing:-.02em;margin:0}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 16px}
+  .brand{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 85%,transparent);
+    backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line)}
+  .brand-in{max-width:1060px;margin:0 auto;padding:14px 16px;display:flex;align-items:center;gap:10px}
+  .logo{width:34px;height:34px;border-radius:10px;background:var(--accent);color:#fff;display:flex;
+    align-items:center;justify-content:center;font-weight:700;font-size:18px;flex:0 0 auto}
+  .brand b{font-size:18px;font-weight:650}
+  .brand span{color:var(--muted);font-size:13.5px;display:block;margin-top:-3px}
+  .tabs-top{display:none;gap:4px;margin-left:auto}
+  .tabs-top button{background:none;border:none;color:var(--muted);font-size:15px;font-weight:550;
+    padding:8px 14px;border-radius:10px;cursor:pointer}
+  .tabs-top button.on{background:var(--accent-soft);color:var(--accent)}
+  section{display:none;padding:22px 0 36px;animation:fade .25s ease}
+  section.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .h-lead{font-size:13px;text-transform:uppercase;letter-spacing:.07em;color:var(--accent);font-weight:650;margin:0 0 4px}
+  h2.title{font-size:26px;font-weight:680;margin-bottom:4px}
+  .subtitle{color:var(--muted);margin:0 0 20px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .pad{padding:18px 20px}
+  .grid2{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+  .stat .lab{font-size:13px;color:var(--muted)}
+  .stat .val{font-size:25px;font-weight:680;margin-top:2px}
+  .stat .val small{font-size:14px;color:var(--muted);font-weight:500}
+  .pill{display:inline-block;font-size:13px;font-weight:600;padding:4px 11px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+  .pill.warn{background:var(--amber-soft);color:var(--amber)} .pill.bad{background:var(--red-soft);color:var(--red)}
+  .ring-wrap{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+  .ring{position:relative;width:120px;height:120px;flex:0 0 auto}
+  .ring .ctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .ring .ctr b{font-size:23px;font-weight:680;line-height:1} .ring .ctr s{font-size:12px;color:var(--muted);text-decoration:none}
+  .goals{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  .goals button{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 14px;border-radius:12px;font-size:14.5px;cursor:pointer;font-weight:550}
+  .goals button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .toolbar{position:sticky;top:63px;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);
+    backdrop-filter:blur(8px);padding:10px 0;margin-bottom:4px}
+  #q{width:100%;padding:13px 15px;border:1px solid var(--line);border-radius:13px;background:var(--card);color:var(--ink);font-size:16px;outline:none}
   #q:focus{border-color:var(--accent)}
-  .chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .chips{display:flex;gap:8px;overflow-x:auto;padding:10px 0 2px;scrollbar-width:none}
   .chips::-webkit-scrollbar{display:none}
-  .chip{white-space:nowrap;border:1px solid var(--line);background:var(--card);color:var(--ink);
-    padding:7px 14px;border-radius:999px;font-size:14px;cursor:pointer;transition:.15s;flex:0 0 auto}
-  .chip:hover{border-color:var(--accent)}
+  .chip{white-space:nowrap;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 15px;border-radius:999px;font-size:15px;cursor:pointer;flex:0 0 auto;font-weight:550}
   .chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
-  main{max-width:1180px;margin:0 auto;padding:20px}
-  .count{color:var(--muted);font-size:14px;margin:0 0 14px}
-  .grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
-    cursor:pointer;display:flex;flex-direction:column;transition:.18s}
-  .card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+  .rgrid{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+  .rcard{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column;transition:.18s}
+  .rcard:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
   .thumb{aspect-ratio:4/3;width:100%;object-fit:cover;background:var(--line);display:block}
-  .card-b{padding:13px 14px 15px;display:flex;flex-direction:column;gap:8px;flex:1}
-  .tags{display:flex;flex-wrap:wrap;gap:6px}
-  .tag{font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+  .rb{padding:13px 15px 16px;display:flex;flex-direction:column;gap:8px;flex:1}
+  .tagrow{display:flex;flex-wrap:wrap;gap:6px}
+  .tag{font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
   .tag.af{background:var(--amber-soft);color:var(--amber)}
-  .card h3{font-size:16px;font-weight:600;margin:0;letter-spacing:-.01em}
-  .meta{margin-top:auto;display:flex;gap:14px;color:var(--muted);font-size:13px;font-weight:500}
-  .meta b{color:var(--ink);font-weight:650}
-  .src{font-size:12px;color:var(--muted)}
-  /* modal */
-  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:50;display:none;
-    align-items:flex-start;justify-content:center;padding:24px 16px;overflow-y:auto}
+  .rcard h3{font-size:17px;font-weight:620;margin:0}
+  .rmeta{margin-top:auto;display:flex;gap:14px;color:var(--muted);font-size:14px;font-weight:550}
+  .rmeta b{color:var(--ink);font-weight:680}
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:60;display:none;align-items:flex-start;justify-content:center;padding:20px 14px;overflow-y:auto}
   .overlay.open{display:flex}
-  .modal{background:var(--card);border-radius:20px;max-width:680px;width:100%;overflow:hidden;
-    box-shadow:0 20px 60px rgba(0,0,0,.4);margin:auto}
-  .modal img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block}
-  .modal-b{padding:20px 22px 26px}
-  .modal h2{margin:0 0 6px;font-size:22px;font-weight:650;letter-spacing:-.02em}
-  .modal .sec{margin-top:18px}
-  .modal .sec h4{margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
-  .modal .sec p,.modal .sec ul{margin:0;font-size:15px}
-  .modal ul{padding-left:18px}
-  .modal li{margin:3px 0}
-  .tipbox{background:var(--accent-soft);border-radius:12px;padding:12px 14px;font-size:14.5px;margin-top:18px}
+  .modal{background:var(--card);border-radius:22px;max-width:640px;width:100%;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.45);margin:auto;position:relative}
+  .modal>img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block}
+  .mb{padding:20px 22px 26px}
+  .mb h2{font-size:24px;font-weight:680;margin:8px 0 8px}
+  .mb .rmeta{font-size:16px}
+  .sec{margin-top:20px}
+  .sec h4{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 9px}
+  .ing{list-style:none;padding:0;margin:0}
+  .ing li{padding:7px 0;border-bottom:1px solid var(--line);font-size:16px}
+  .ing li:last-child{border:none}
+  .steps{counter-reset:s;list-style:none;padding:0;margin:0}
+  .steps li{position:relative;padding:8px 0 8px 38px;font-size:16px;border-bottom:1px solid var(--line)}
+  .steps li:last-child{border:none}
+  .steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:8px;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center}
+  .cook{display:inline-block;background:var(--amber-soft);color:var(--amber);font-weight:600;font-size:14px;padding:6px 13px;border-radius:999px;margin-top:12px}
+  .tipbox{background:var(--accent-soft);border-radius:14px;padding:14px 16px;font-size:16px;margin-top:20px;line-height:1.55}
   .tipbox b{color:var(--accent)}
-  .cook{display:inline-block;background:var(--amber-soft);color:var(--amber);font-weight:600;
-    font-size:13px;padding:5px 11px;border-radius:999px;margin-top:12px}
-  .modal a.srclink{color:var(--accent);font-size:14px;text-decoration:none;font-weight:600}
-  .modal a.srclink:hover{text-decoration:underline}
-  .x{position:sticky;top:0;float:right;background:rgba(0,0,0,.45);color:#fff;border:none;width:34px;height:34px;
-    border-radius:50%;font-size:20px;cursor:pointer;margin:10px 10px -44px 0;z-index:2}
-  footer{max-width:1180px;margin:0 auto;padding:10px 20px 40px;color:var(--muted);font-size:12.5px}
-  @media(max-width:520px){ .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
-    .card h3{font-size:14.5px} header{padding-top:20px} }
+  .source{color:var(--muted);font-size:13.5px;margin-top:18px}
+  .btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;border:none;border-radius:12px;padding:12px 18px;font-size:16px;font-weight:600;cursor:pointer;margin-top:18px}
+  .btn.ghost{background:none;color:var(--accent);border:1px solid var(--accent)}
+  .btn:disabled{opacity:.7}
+  .x{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.5);color:#fff;border:none;width:38px;height:38px;border-radius:50%;font-size:22px;cursor:pointer;z-index:3;line-height:1}
+  .avatar-stage{display:flex;gap:24px;align-items:center;flex-wrap:wrap;justify-content:center}
+  .bmibar{height:14px;border-radius:999px;background:linear-gradient(90deg,#5ccfa0,#cfd34a 45%,#e0a23c 65%,#e2685f);position:relative;margin:14px 0 6px}
+  .bmibar .knob{position:absolute;top:-6px;width:26px;height:26px;border-radius:50%;background:#fff;border:3px solid var(--ink);transform:translateX(-50%);transition:left .3s}
+  .scalelab{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+  input[type=range]{width:100%;accent-color:var(--accent)}
+  .meal{display:flex;gap:14px;align-items:flex-start;padding:16px 0;border-bottom:1px solid var(--line)}
+  .meal:last-child{border:none}
+  .dot{width:12px;height:12px;border-radius:50%;margin-top:7px;flex:0 0 auto}
+  .spesa-item{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);font-size:16px}
+  .spesa-item:last-child{border:none}
+  .spesa-item input{width:20px;height:20px;accent-color:var(--accent)}
+  .spesa-item.done span{text-decoration:line-through;color:var(--muted)}
+  .empty{color:var(--muted);text-align:center;padding:30px 10px}
+  .miniline{width:100%;height:140px}
+  .nav{position:fixed;bottom:0;left:0;right:0;z-index:40;background:color-mix(in srgb,var(--card) 94%,transparent);
+    backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;
+    height:calc(var(--nav-h) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom)}
+  .nav button{flex:1;background:none;border:none;color:var(--muted);font-size:11px;font-weight:600;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer}
+  .nav button .ic{font-size:21px;line-height:1}
+  .nav button.on{color:var(--accent)}
+  @media(min-width:780px){ .tabs-top{display:flex} .nav{display:none} body{padding-bottom:20px} .toolbar{top:64px} }
+  @media(max-width:520px){ .rgrid{grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px}
+    .rcard h3{font-size:15px} body{font-size:16px} h2.title{font-size:23px} }
 </style>
 </head>
 <body>
-<header>
-  <h1>Le mie ricette</h1>
-  <p class="sub">Fit ma golose â€” comfort food alleggerito, tanta friggitrice ad aria. Tutte da fonti reali.</p>
-</header>
 
-<div class="toolbar">
-  <div class="toolbar-inner">
-    <input id="q" type="search" placeholder="Cerca una ricetta (es. pollo, burger, cioccolato)â€¦" autocomplete="off">
+<div class="brand"><div class="brand-in">
+  <div class="logo">N</div>
+  <div><b>NutriCoach</b><span>la nutrizione di Andrea</span></div>
+  <div class="tabs-top" id="tabsTop"></div>
+</div></div>
+
+<div class="wrap">
+
+<section id="oggi" class="on">
+  <p class="h-lead" id="todayDate">Oggi</p>
+  <h2 class="title">Ciao Andrea 👋</h2>
+  <p class="subtitle">Ecco la tua giornata. I pasti li aggiungi inviando le foto in chat: io aggiorno qui.</p>
+  <div class="card pad" style="margin-bottom:14px">
+    <div class="ring-wrap">
+      <div class="ring">
+        <svg viewBox="0 0 120 120" width="120" height="120">
+          <circle cx="60" cy="60" r="52" fill="none" stroke="var(--line)" stroke-width="11"/>
+          <circle id="kcalArc" cx="60" cy="60" r="52" fill="none" stroke="var(--accent)" stroke-width="11" stroke-linecap="round" transform="rotate(-90 60 60)" stroke-dasharray="0 327"/>
+        </svg>
+        <div class="ctr"><b id="kcalNow">0</b><s>/ <span id="kcalTgt">2600</span> kcal</s></div>
+      </div>
+      <div style="flex:1;min-width:180px">
+        <div style="font-weight:600;margin-bottom:8px">Obiettivo del momento</div>
+        <div class="goals" id="goals">
+          <button data-g="dim" class="on">Dimagrire</button>
+          <button data-g="man">Mantenere</button>
+          <button data-g="for">Forza/Sport</button>
+        </div>
+        <p style="color:var(--muted);font-size:14.5px;margin:12px 0 0" id="goalNote"></p>
+      </div>
+    </div>
+  </div>
+  <div class="grid2" style="margin-bottom:14px">
+    <div class="stat"><div class="lab">Peso attuale</div><div class="val">92 <small>kg</small></div></div>
+    <div class="stat"><div class="lab">BMI</div><div class="val" style="color:var(--amber)">31,1</div></div>
+    <div class="stat"><div class="lab">Proteine obiettivo</div><div class="val">120-140 <small>g</small></div></div>
+    <div class="stat"><div class="lab">Fritti / settimana</div><div class="val">1 <small>/ max 3</small></div></div>
+  </div>
+  <div class="card pad" style="margin-bottom:14px">
+    <h3 style="font-size:18px;margin-bottom:6px">Ultimo pasto registrato</h3>
+    <div class="meal" style="border:none;padding-bottom:0">
+      <div class="dot" style="background:var(--red)"></div>
+      <div>
+        <div style="font-weight:600">Cena · 16 giugno</div>
+        <div style="color:var(--muted);font-size:15px">Crostoni di pane, mozzarella e prosciutto crudo (9 fette)</div>
+        <div style="margin-top:6px"><span class="pill bad">~1.990 kcal</span> <span class="pill">110 g proteine</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="card pad">
+    <h3 style="font-size:18px;margin-bottom:10px">Passi di oggi <span class="pill warn">in arrivo</span></h3>
+    <p style="color:var(--muted);margin:0;font-size:15px">Il contapassi con GPS si attiverà quando installi l'app sul telefono. Per ora concentriamoci su alimentazione e camminata.</p>
+  </div>
+</section>
+
+<section id="ricette">
+  <p class="h-lead">Il ricettario</p>
+  <h2 class="title">Ricette fit ma golose</h2>
+  <p class="subtitle">39 ricette dei tuoi piatti, alleggerite. Tutte copiate per intero qui dentro.</p>
+  <div class="toolbar">
+    <input id="q" type="search" placeholder="Cerca: pollo, burger, cioccolato…" autocomplete="off">
     <div class="chips" id="chips"></div>
   </div>
+  <p style="color:var(--muted);font-size:14px;margin:6px 0 14px" id="rcount"></p>
+  <div class="rgrid" id="rgrid"></div>
+</section>
+
+<section id="diario">
+  <p class="h-lead">Il diario</p>
+  <h2 class="title">Cosa ho mangiato</h2>
+  <p class="subtitle">Invia le foto dei pasti in chat: stimo calorie e proteine e li registro qui.</p>
+  <div class="card pad" id="diaryList"></div>
+</section>
+
+<section id="corpo">
+  <p class="h-lead">Il mio corpo</p>
+  <h2 class="title">Forma fisica</h2>
+  <p class="subtitle">Sposta il peso e guarda come cambia la figura: è il tuo obiettivo che prende forma.</p>
+  <div class="card pad">
+    <div class="avatar-stage">
+      <svg id="avatar" viewBox="0 0 120 230" width="150" height="280" aria-label="figura corporea">
+        <g id="body" fill="var(--accent)">
+          <ellipse cx="60" cy="26" rx="17" ry="18"/>
+          <rect id="torso" x="34" y="46" width="52" height="92" rx="24"/>
+          <rect x="22" y="52" width="16" height="62" rx="8"/>
+          <rect x="82" y="52" width="16" height="62" rx="8"/>
+          <rect x="40" y="134" width="17" height="86" rx="8"/>
+          <rect x="63" y="134" width="17" height="86" rx="8"/>
+        </g>
+      </svg>
+      <div style="flex:1;min-width:240px">
+        <div style="display:flex;align-items:baseline;gap:10px">
+          <span style="font-size:34px;font-weight:700" id="wVal">92</span><span style="color:var(--muted)">kg</span>
+          <span style="margin-left:auto" class="pill" id="bmiPill">BMI 31,1</span>
+        </div>
+        <input type="range" id="wRange" min="60" max="110" step="1" value="92">
+        <div class="bmibar"><div class="knob" id="bmiKnob"></div></div>
+        <div class="scalelab"><span>Normopeso</span><span>Sovrappeso</span><span>Obesità</span></div>
+        <p id="bmiCat" style="font-weight:600;margin:14px 0 0"></p>
+        <p style="color:var(--muted);font-size:14.5px;margin:6px 0 0">Obiettivo 1ª tappa: <b style="color:var(--ink)">sotto 85 kg</b>. Peso di forma: ~63-73 kg.</p>
+      </div>
+    </div>
+    <p style="color:var(--muted);font-size:13.5px;margin:18px 0 0;text-align:center">Modello 3D realistico in arrivo — questa è la prima versione.</p>
+  </div>
+</section>
+
+<section id="spesa">
+  <p class="h-lead">La spesa</p>
+  <h2 class="title">Lista della spesa</h2>
+  <p class="subtitle">Aggiungi una ricetta dalla sua scheda (pulsante “Aggiungi alla spesa”) e gli ingredienti finiscono qui.</p>
+  <div class="card pad" id="spesaList"></div>
+  <button class="btn ghost" id="clearSpesa" style="margin-top:14px;display:none">Svuota la lista</button>
+</section>
+
+<section id="progressi">
+  <p class="h-lead">I progressi</p>
+  <h2 class="title">Andamento</h2>
+  <p class="subtitle">I grafici si popolano man mano che registri peso e pasti.</p>
+  <div class="card pad" style="margin-bottom:14px">
+    <h3 style="font-size:17px;margin-bottom:4px">Peso nel tempo</h3>
+    <svg class="miniline" id="weightChart" viewBox="0 0 320 140" preserveAspectRatio="none"></svg>
+    <p style="color:var(--muted);font-size:14px;margin:8px 0 0">Un solo dato per ora (92 kg). Mandami le pesate e qui vedrai la discesa.</p>
+  </div>
+  <div class="grid2">
+    <div class="stat"><div class="lab">Media kcal / giorno</div><div class="val">~1.990 <small>(1 giorno)</small></div></div>
+    <div class="stat"><div class="lab">Pasti registrati</div><div class="val">1</div></div>
+    <div class="stat"><div class="lab">Proteine medie</div><div class="val">110 <small>g</small></div></div>
+    <div class="stat"><div class="lab">Alcolici</div><div class="val">0 <small>🟢</small></div></div>
+  </div>
+</section>
+
 </div>
 
-<main>
-  <p class="count" id="count"></p>
-  <div class="grid" id="grid"></div>
-</main>
-
-<footer>
-  39 ricette da fonti gratuite reali. Valori nutrizionali stimati (per porzione) a scopo indicativo. Uso personale.
-</footer>
-
+<nav class="nav" id="navBottom"></nav>
 <div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
 
 <script>
-const R = [
- {t:"Cheeseburger fatto in casa",c:["Burger & panini"],img:"01_hamburger_cheeseburger.jpg",kcal:650,p:38,sn:"piovonoricette",src:"https://blog.giallozafferano.it/piovonoricette/cheeseburger-fatto-in-casa/",ing:"300 g controfiletto macinato Â· Worcestershire Â· paprika affumicata Â· 2 panini Â· cheddar/sottilette Â· pomodoro, lattuga, cipollotto Â· maionese, senape, BBQ",st:"Condisci la carne, forma 2 hamburger, cuoci in padella 3-4 min/lato col formaggio a fine cottura. Componi i panini con salse e farciture.",cook:"Padella Â· ~10 min",tip:"Usa macinato 5% magro, 1 solo formaggio e salsa di yogurt greco+senape: scendi a ~520 kcal. Il tuo sabato del burger."},
- {t:"Patatine stick croccanti",c:["Snack & finger food"],af:1,img:"02_patatine_stick_airfryer.jpg",kcal:330,p:10,sn:"clapfood",src:"https://blog.giallozafferano.it/clapfood/ricetta-patatine-stick-croccanti-in-friggitrice-ad-aria/",ing:"500 g patate stick surgelate Â· 100 g parmigiano Â· 80 g pangrattato Â· olio Â· sale Â· origano",st:"Metti tutto nel cestello, mescola, cuoci girando a metÃ .",cook:"Friggitrice 200Â°C Â· 15 min",tip:"Dimezza parmigiano e pangrattato e scendi a ~230 kcal. Comunque molto meglio delle fritte in olio."},
- {t:"Pollo fritto stile KFC",c:["Secondi di carne"],img:"03_pollo_fritto_kfc.jpg",kcal:520,p:42,sn:"padelletegliecucchiarell",src:"https://blog.giallozafferano.it/padelletegliecucchiarell/pollo-fritto-croccante-tipo-kfc/",ing:"3 petti di pollo Â· aglio granulare Â· paprika piccante Â· farina Â· 2 uova + latte Â· 200 g corn flakes Â· olio di semi",st:"Pollo a strisce condito con aglio e paprika; passa in farina â†’ uovo â†’ corn flakes; friggi fino a doratura.",cook:"Frittura Â· ~20 min",tip:"Stessa panatura ai corn flakes ma in friggitrice ad aria 200Â°C 12-15 min con spruzzo d'olio â†’ ~380 kcal. Il tuo pollo fritto buono."},
- {t:"Nuggets di pollo",c:["Secondi di carne","Snack & finger food"],af:1,img:"04_nuggets_pollo_airfryer.jpg",kcal:330,p:32,sn:"lemillericettedivale",src:"https://blog.giallozafferano.it/lemillericettedivale/ricetta-nuggets-fatti-in-casa-friggitrice-ad-aria/",ing:"300 g petto di pollo Â· 2 uova Â· 200 g farina Â· pangrattato Â· spruzzo olio Â· sale",st:"Pollo a pezzetti, passa in farina â†’ uovo â†’ pangrattato; friggitrice con spruzzo d'olio, gira a metÃ .",cook:"Friggitrice 190Â°C Â· 17 min",tip:"GiÃ  ottimi cosÃ¬: proteici e senza frittura. Perfetti con le patatine air-fryer."},
- {t:"Pollo e riso teriyaki",c:["Primi","Secondi di carne"],img:"05_riso_pollo_teriyaki.jpg",kcal:400,p:20,sn:"iltronodiforchette",src:"https://blog.giallozafferano.it/iltronodiforchette/pollo-riso-bianco-salsa-teriyaki/",ing:"300 g riso Â· 200 g petto di pollo Â· zucchero di canna Â· sake Â· salsa di soia Â· zenzero Â· sesamo",st:"Prepara la salsa, marina il pollo 30 min, cuoci in forno 180Â°C; lessa il riso; servi con salsa e sesamo.",cook:"Forno 180Â°C Â· 15 min",tip:"Dosa la salsa (zucchero+sale) invece di annegarci il riso. Aumenta il pollo a 250 g per piÃ¹ proteine."},
- {t:"Salsiccia e patate",c:["Secondi di carne"],af:1,img:"06_patate_salsiccia_airfryer.jpeg",kcal:560,p:22,sn:"lemillericettedivale",src:"https://blog.giallozafferano.it/lemillericettedivale/ricetta-salsiccia-e-patate-in-friggitrice-ad-aria/",ing:"400 g salsiccia Â· 400 g patate novelle Â· olio Â· rosmarino Â· sale",st:"Patate a spicchi condite, salsiccia a pezzi: tutto nel cestello girando due volte (il grasso cola via).",cook:"Friggitrice 190Â°C Â· 25 min",tip:"Tieni ~130 g di salsiccia a testa: l'air-fryer fa colare via il grasso in eccesso."},
- {t:"Involtini primavera",c:["Snack & finger food"],af:1,img:"07_involtini_primavera_airfryer.jpg",kcal:90,p:2,sn:"saporepuro",src:"https://blog.giallozafferano.it/saporepuro/involtini-primavera/",ing:"Sfoglia (farina+acqua) Â· verdure a bastoncini Â· soia Â· aceto balsamico Â· albume (per sigillare)",st:"Verdure in friggitrice 170Â°C 7 min; sfoglie precotte; farcisci, chiudi a fagottino e cuoci 200Â°C 7 min.",cook:"Friggitrice Â· ~22 min Â· (90 kcal a involtino)",tip:"La verdura Ã¨ tritata e cotta dentro la sfoglia, quasi invisibile. In alternativa: surgelati solo in air-fryer 200Â°C 8-10 min."},
- {t:"Pizza margherita",c:["Classici"],img:"08_pizza_margherita.jpg",kcal:750,p:25,sn:"cucinoperpassione",src:"https://blog.giallozafferano.it/cucinoperpassione/pizza-margherita-fatta-in-casa/",ing:"500 g farina 0 Â· 300 ml acqua Â· lievito Â· malto Â· sale Â· olio Â· passata Â· 2 mozzarelle Â· origano",st:"Impasta, lievita in frigo tutta la notte, stendi, condisci e inforna a 200Â°C.",cook:"Forno 200Â°C Â· 20 min Â· (per pizza)",tip:"La tua pizza programmata 1Ã—/sett. Fatta in casa usi 100 g mozzarella e controlli l'olio. Quel giorno pranzo leggero."},
- {t:"Pasta alla carbonara",c:["Primi"],img:"09_pasta_carbonara.jpg",kcal:850,p:30,sn:"unsecondoincucina",src:"https://blog.giallozafferano.it/unsecondoincucina/ricetta-pasta-alla-carbonara-ricetta-originale/",ing:"320 g pasta Â· 260 g guanciale Â· 5 tuorli Â· 100 g pecorino Â· pepe nero",st:"Rosola il guanciale, crema di tuorli e pecorino, manteca la pasta al dente.",cook:"Bollitura Â· ~13 min",tip:"80 g di pasta a testa e guanciale 40 g invece di 65 â†’ ~600 kcal, resta buonissima. Ãˆ il piatto da dosare."},
- {t:"Spaghetti aglio e olio",c:["Primi"],img:"10_pasta_aglio_olio.jpg",kcal:450,p:11,sn:"valeriaciccotti",src:"https://blog.giallozafferano.it/valeriaciccotti/spaghetti-aglio-olio-e-peperoncino/",ing:"350 g spaghetti Â· 2 spicchi aglio Â· peperoncino Â· olio EVO",st:"Scalda olio, aglio e peperoncino; salta gli spaghetti al dente con acqua di cottura.",cook:"Fornello Â· ~10 min",tip:"Senza verdura, semplice. L'unica leva Ã¨ la dose d'olio: 1 cucchiaio a testa. Porzione pasta 80-90 g."},
- {t:"Piadina romagnola",c:["Burger & panini"],img:"11_piadina_romagnola.jpg",kcal:500,p:22,sn:"incucinacongiorgia",src:"https://blog.giallozafferano.it/incucinacongiorgia/piadina-romagnola/",ing:"520 g farina Â· 75 g strutto (o olio) Â· sale Â· lievito Â· 300 ml latte Â· (salumi e formaggio)",st:"Impasta, forma 5 dischi, cuoci su piastra fino ai pallini, farcisci.",cook:"Piastra Â· ~5 min",tip:"Olio invece di strutto; farcisci con bresaola/cotto magro + mozzarella light. 1 piadina (non 2) â†’ ~430 kcal."},
- {t:"Crostone mozzarella e prosciutto",c:["Snack & finger food","Secondi di carne"],img:"12_crostone_mozzarella_prosciutto.jpg",kcal:720,p:35,sn:"cucinaprediletta",src:"https://blog.giallozafferano.it/cucinaprediletta/crostone-con-prosciutto-e-mozzarella/",ing:"2 fette pane (~100 g) Â· 250 g mozzarella Â· 120 g prosciutto Â· passata Â· aglio in polvere Â· origano",st:"Cuoci la passata; sulle fette passata + mozzarella in forno fino a fusione; prosciutto all'uscita.",cook:"Forno 220Â°C Â· 8-10 min",tip:"Ãˆ la tua cena, in versione giusta: 2 fette grandi, non 9. Attento al sale: bevi piÃ¹ acqua."},
- {t:"Lenticchie con salsiccia",c:["Secondi di carne"],img:"13_lenticchie_salsiccia.jpg",kcal:470,p:25,sn:"ilchiccodimais",src:"https://blog.giallozafferano.it/ilchiccodimais/lenticchie-con-salsiccia-umido/",ing:"250 g lenticchie Â· 4 salsicce Â· soffritto Â· 250 g polpa di pomodoro Â· olio",st:"Ammolla le lenticchie, sgrassa le salsicce, cuoci con soffritto e pomodoro 30-40 min.",cook:"Fornello Â· ~40 min",tip:"Il piatto-chiave per la tua FIBRA (che manca col no-verdura). Il soffritto si scioglie nel sugo. 1-2 volte a settimana."},
- {t:"Gyoza (ravioli giapponesi)",c:["Snack & finger food"],img:"14_gyoza_ravioli.jpg",kcal:250,p:12,sn:"incucinaconchiara",src:"https://blog.giallozafferano.it/incucinaconchiara/gyoza-ravioli-giapponesi-in-padella/",ing:"Pasta (farina+acqua) Â· 80 g maiale macinato Â· verza Â· cipollotto Â· zenzero Â· soia Â· olio di sesamo",st:"Impasto, ripieno di carne e verza tritata; forma, farcisci, chiudi; in padella 3 min + 8 min a vapore.",cook:"Padella Â· ~10 min Â· (5-6 ravioli)",tip:"La verza Ã¨ tritata fine nel ripieno, impercettibile. Versione fatta in casa dei tuoi ravioli."},
+const TABS=[
+ {id:"oggi",lab:"Oggi",ic:"◎"},
+ {id:"ricette",lab:"Ricette",ic:"🍽"},
+ {id:"diario",lab:"Diario",ic:"📓"},
+ {id:"corpo",lab:"Corpo",ic:"🧍"},
+ {id:"spesa",lab:"Spesa",ic:"🛒"},
+ {id:"progressi",lab:"Progressi",ic:"📈"}
+];
+const tabsTop=document.getElementById('tabsTop'), navBottom=document.getElementById('navBottom');
+TABS.forEach(t=>{
+  const b=document.createElement('button');b.textContent=t.lab;b.dataset.id=t.id;
+  b.onclick=()=>go(t.id);if(t.id==="oggi")b.classList.add('on');tabsTop.appendChild(b);
+  const n=document.createElement('button');n.dataset.id=t.id;
+  n.innerHTML='<span class="ic">'+t.ic+'</span>'+t.lab;n.onclick=()=>go(t.id);
+  if(t.id==="oggi")n.classList.add('on');navBottom.appendChild(n);
+});
+function go(id){
+  document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id===id));
+  document.querySelectorAll('.tabs-top button,.nav button').forEach(b=>b.classList.toggle('on',b.dataset.id===id));
+  window.scrollTo({top:0});
+  if(id==="spesa")renderSpesa();
+}
 
- {t:"Patatine in friggitrice ad aria",c:["Snack & finger food"],af:1,img:"f01_patatine_airfryer.jpg",kcal:220,p:4,sn:"cookingwithsere",src:"https://www.cookingwithsere.it/ricetta/patatine-in-friggitrice-ad-aria/",ing:"4 patate grandi Â· 1 cucchiaio olio Â· sale",st:"Patate a bastoncini, ammollo 30 min, asciuga, condisci con 1 cucchiaio d'olio, cuoci a strato singolo. Sala a fine cottura.",cook:"Friggitrice 200Â°C Â· 15-20 min",tip:"La versione piÃ¹ magra delle patatine: un solo cucchiaio d'olio. Ottimo contorno del burger."},
- {t:"Stick di mozzarella",c:["Snack & finger food"],af:1,img:"f02_mozzarella_sticks_airfryer.jpg",kcal:250,p:14,sn:"cioccolimone",src:"https://cioccolimone.altervista.org/stick-di-mozzarella-fritte-in-friggitrice-ad-aria/",ing:"Mozzarella per pizza Â· 3 uova Â· farina Â· pangrattato Â· farina di mais Â· salsa senape+miele",st:"Mozzarella a stick, panatura farina â†’ uovo â†’ pangrattato; cestello oliato, spruzza olio, cuoci. Servi con la salsa.",cook:"Friggitrice 200Â°C Â· 7-8 min",tip:"Sfizio goloso ma proteico. Mettili in freezer 10 min prima di cuocere cosÃ¬ non colano."},
- {t:"Bocconcini di pollo impanati",c:["Secondi di carne","Snack & finger food"],af:1,img:"f03_bocconcini_pollo_airfryer.webp",kcal:300,p:35,sn:"friggitriceadariacookinglab",src:"https://www.friggitriceadariacookinglab.info/bocconcini-di-pollo-impanati-nella-friggitrice-ad-aria/",ing:"400 g petto di pollo Â· 2 uova Â· farina Â· panko Â· aglio in polvere, paprika Â· spruzzo olio",st:"Pollo a bocconcini, panatura farina â†’ uovo â†’ panko speziato; spruzza olio e cuoci fino a doratura.",cook:"Friggitrice 200Â°C Â· 10 min",tip:"Il panko li rende super croccanti. 35 g di proteine, pochissimi grassi."},
- {t:"Arancini al forno",c:["Snack & finger food"],img:"f04_arancini_al_forno.jpg",kcal:250,p:8,sn:"tavolartegusto",src:"https://www.tavolartegusto.it/ricetta/arancini-al-forno/",ing:"500 g riso Â· zafferano Â· ragÃ¹ di carne Â· caciocavallo Â· pastella + pangrattato",st:"Riso allo zafferano raffreddato, farcisci con ragÃ¹ e formaggio, impana e inforna con filo d'olio.",cook:"Forno 180Â°C Â· 25 min Â· (a pezzo)",tip:"Versione al forno: niente bagno d'olio. Sfizio della domenica controllato."},
- {t:"Brownies proteici",c:["Dolci & colazione"],img:"f05_brownies_proteici.jpg",kcal:250,p:12,sn:"cookist",src:"https://www.cookist.it/brownies-proteici/",ing:"250 g albume Â· 200 g cioccolato fondente Â· 180 g farina d'avena Â· zucchero di canna Â· nocciole Â· cacao Â· burro d'arachidi",st:"Mescola le polveri, sciogli cioccolato+arachidi, monta gli albumi, unisci tutto e inforna.",cook:"Forno 180Â°C Â· 20 min",tip:"Il dolce al cioccolato che puoi permetterti: proteico e con avena. Goloso ma sotto controllo."},
- {t:"Maxi cookie proteico al cacao",c:["Dolci & colazione"],img:"f06_cookie_proteico_cacao.jpg",kcal:325,p:24,sn:"fitwithfun",src:"https://www.fitwithfun.it/maxi-biscotto-cookie-proteico-al-cacao-senza-glutine/",ing:"100 g banana Â· 20 g cacao Â· 20 g farina Â· 20 g proteine al cioccolato Â· 10 g burro d'arachidi Â· cannella",st:"Schiaccia la banana, unisci tutto, modella su carta forno, decora e cuoci al microonde 3-4 min.",cook:"Microonde 1000W Â· 3-4 min",tip:"Pronto in 5 minuti, 24 g di proteine. Lo snack dolce che sazia davvero."},
- {t:"Muffin proteici al cioccolato",c:["Dolci & colazione"],img:"f07_muffin_proteici.jpg",kcal:69,p:8,sn:"onemore-nutrition",src:"https://onemore-nutrition.it/ricette/muffin-proteici-con-gocce-di-cioccolato/",ing:"1 misurino whey cioccolato Â· 50 g farina d'avena Â· 200 g albume Â· 100 g yogurt greco Â· cioccolato fondente",st:"Monta l'albume, unisci yogurt, avena e proteine; cuore di cioccolato in ogni stampo e inforna.",cook:"Forno 180Â°C Â· 20 min Â· (a muffin)",tip:"Solo 69 kcal a muffin: te ne mangi due senza pensieri. Ottimi a colazione."},
- {t:"Pancake proteici",c:["Dolci & colazione"],img:"f08_pancake_proteici.jpg",kcal:335,p:30,sn:"projectinvictus",src:"https://www.projectinvictus.it/colazione-proteica-dolce/",ing:"150 g albume Â· 40 g farina d'avena Â· 1 banana Â· 30 g yogurt greco Â· bicarbonato",st:"Frulla tutto, cuoci in padella antiaderente fino a doratura. Servi con frutta o miele.",cook:"Padella Â· pochi min",tip:"30 g di proteine a colazione: se mai inizierai a fare colazione, Ã¨ da qui che parti."},
- {t:"French toast proteico",c:["Dolci & colazione"],img:"f09_french_toast_proteico.jpg",kcal:300,p:25,sn:"myprotein",src:"https://www.myprotein.it/thezone/ricette/french-toast-ricetta-proteica-poche-calorie/",ing:"60 g albume Â· latte vegetale Â· cannella Â· 4 fette di pane Â· creme proteiche vaniglia/cioccolato",st:"Inzuppa il pane in albume+latte+cannella, cuoci in padella, completa con le creme proteiche.",cook:"Padella Â· pochi min",tip:"La colazione da bar, ma proteica e leggera. Goloso e furbo."},
- {t:"CrÃªpes proteiche al cioccolato",c:["Dolci & colazione"],img:"f10_crepes_proteiche_cioccolato.jpg",kcal:200,p:12,sn:"cookist",src:"https://www.cookist.it/crepes-proteiche-al-cioccolato/",ing:"80 g albumi Â· latte di soia Â· 50 g farina d'avena Â· cacao Â· yogurt greco Â· cioccolato fuso",st:"Pastella di albumi, latte, avena e cacao; cuoci 2 min/lato; farcisci con yogurt e decora col cioccolato.",cook:"Padella Â· 2 min/lato",tip:"Dolce al cioccolato a 200 kcal. Per la voglia di dolce serale senza sgarrare."},
- {t:"Overnight oats al cacao",c:["Dolci & colazione"],img:"f11_overnight_oats_cacao.jpg",kcal:180,p:15,sn:"atavolacontea",src:"https://blog.giallozafferano.it/atavolacontea/ricetta-porridge-overnight-oats-al-cacao/",ing:"50 g avena Â· latte Â· miele Â· yogurt greco 0% Â· cacao",st:"Strati di avena+yogurt, yogurt al cacao e yogurt alla vaniglia; riposo in frigo tutta la notte.",cook:"Senza cottura Â· riposo 4h+",tip:"Lo prepari la sera, Ã¨ pronto la mattina. 180 kcal e 15 g di proteine, al cioccolato."},
- {t:"Gelato proteico istantaneo",c:["Dolci & colazione"],img:"f12_gelato_proteico.jpg",kcal:190,p:27,sn:"fitwithfun",src:"https://fitwithfun.it/gelato-proteico-istantaneo-e-ipocalorico-senza-banana-e-zucchero/",ing:"30 g proteine Â· 10 g cacao Â· 250 ml latte Â· 100 g ghiaccio Â· gomma di xantano",st:"Mescola le polveri, frulla col latte, aggiungi il ghiaccio e frulla fino a crema. Servi subito.",cook:"Frullatore Â· 5 min",tip:"Il gelato al cioccolato che NON ti fa ingrassare: 190 kcal, 27 g proteine. Sostituisce il Lindor serale."},
+const mesi=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
+const giorni=["domenica","lunedì","martedì","mercoledì","giovedì","venerdì","sabato"];
+const d=new Date();
+document.getElementById('todayDate').textContent=giorni[d.getDay()]+" "+d.getDate()+" "+mesi[d.getMonth()];
 
- {t:"Ali di pollo BBQ",c:["Secondi di carne"],af:1,img:"m01_ali_pollo_bbq_airfryer.jpg",kcal:400,p:30,sn:"Cookist",src:"https://www.cookist.it/ali-di-pollo-nella-friggitrice-ad-aria-la-ricetta-del-secondo-piatto-veloce-e-leggero/",ing:"8 ali di pollo Â· aglio e cipolla in polvere Â· curry Â· sale Â· pepe Â· olio EVO Â· salsa BBQ",st:"Condisci le ali con spezie e olio, cuoci nel cestello girando a metÃ  fino a doratura. Servi con BBQ.",cook:"Friggitrice 200Â°C Â· 40 min",tip:"Le wings da pub, ma senza frittura. Da sgranocchiare guardando la partita."},
- {t:"Alette di pollo croccanti",c:["Secondi di carne"],af:1,img:"m02_alette_pollo_croccanti.jpeg",kcal:450,p:35,sn:"ilcuoreinpentola",src:"https://www.ilcuoreinpentola.it/ricette/secondi-piatti/alette-di-pollo-in-friggitrice-ad-aria/",ing:"12 alette di pollo Â· sale Â· rosmarino Â· paprika Â· peperoncino Â· olio",st:"Condisci le alette, cuoci a 180Â°C girando, poi alza a 200Â°C per dorarle fino a croccantezza.",cook:"Friggitrice 180â†’200Â°C",tip:"Croccanti come fritte. Tieni la pelle se vuoi il gusto pieno, toglila per alleggerire."},
- {t:"Cotolette di pollo",c:["Secondi di carne"],af:1,img:"m03_cotolette_pollo_airfryer.jpg",kcal:350,p:40,sn:"primochef",src:"https://primochef.it/cotolette-di-pollo-in-friggitrice-ad-aria/ricette/",ing:"4 fettine di petto Â· 2 uova Â· pangrattato Â· farina Â· spruzzo olio",st:"Batti le fettine, impana farina â†’ uovo â†’ pangrattato, cuoci nel cestello con spruzzo d'olio girando a metÃ .",cook:"Friggitrice 200Â°C Â· 8 min",tip:"La milanese senza il bagno d'olio: 40 g proteine, croccante uguale. Mettila col purÃ¨ o le patatine air-fryer."},
- {t:"Bacon croccante",c:["Snack & finger food","Secondi di carne"],af:1,img:"m04_bacon_croccante_airfryer.jpg",kcal:200,p:12,sn:"primochef",src:"https://primochef.it/bacon-in-friggitrice-ad-aria/ricette/",ing:"12 fette di bacon",st:"Disponi le fette nel cestello senza sovrapporle (niente carta forno), cuoci controllando a metÃ , scola su carta.",cook:"Friggitrice 170Â°C Â· 5 min",tip:"In 5 minuti, croccante e con metÃ  del grasso che cola via. Perfetto sul cheeseburger o da solo."},
- {t:"Polpette light",c:["Secondi di carne"],af:1,img:"m05_polpette_light_airfryer.jpg",kcal:300,p:28,sn:"dietaepalestra",src:"https://www.dietaepalestra.it/polpette-in-friggitrice-ad-aria/",ing:"500 g macinato magro Â· albume + 1 uovo Â· grana Â· scamorza Â· pancarrÃ¨ + latte Â· pangrattato",st:"Impasta tutto, forma polpette da 25 g, impana, spennella d'olio e cuoci nel cestello.",cook:"Friggitrice 180Â°C Â· 20 min Â· (porzione 5-6)",tip:"Cuore di scamorza filante, macinato magro. Comfort food proteico al 100%."},
- {t:"Spiedini di carne",c:["Secondi di carne"],af:1,img:"m06_spiedini_carne_airfryer.jpg",kcal:250,p:25,sn:"buonissimo",src:"https://www.buonissimo.it/lericette/spiedini-friggitrice-aria-355765",ing:"250 g carne a cubi Â· spezie e marinatura Â· (verdure a piacere)",st:"Marina la carne 30 min, infila sugli spiedini, cuoci girando a metÃ .",cook:"Friggitrice 200Â°C Â· 13-18 min",tip:"La ricetta usa tacchino+verdure: per te â†’ usa pollo o maiale e salta le verdure. Restano ottimi solo carne."},
- {t:"Costine di maiale",c:["Secondi di carne"],af:1,img:"m07_costine_maiale_airfryer.jpg",kcal:500,p:30,sn:"quotidianpost",src:"https://www.quotidianpost.it/costine-di-maiale-alla-brace-in-friggitrice-ad-aria-bastano-25-minuti/",ing:"500 g costine con osso Â· olio spray Â· sale Â· pepe Â· prezzemolo",st:"Preriscalda, adagia le costine, condisci, cuoci girando a metÃ  fino a crosticina.",cook:"Friggitrice 200Â°C Â· 25 min",tip:"Il sapore della brace senza accendere il barbecue. Pennella con BBQ negli ultimi 5 min."},
- {t:"Smash burger all'italiana",c:["Burger & panini"],img:"m08_smash_burger.jpg",kcal:650,p:40,sn:"sfizioso",src:"https://www.sfizioso.it/smash-burger-italiano-ricetta/",ing:"4 panini Â· 320 g macinato di vitello Â· speck Â· Asiago Â· senape Â· (friarielli)",st:"Palline di carne condite, schiacciate su piastra rovente fino a crosticina; fondi l'Asiago e assembla.",cook:"Piastra Â· ~10 min",tip:"Lo smash burger vero. I friarielli sono verdura: saltali pure. Lo speck dÃ  giÃ  tutto il gusto."},
- {t:"Kebab di pollo light",c:["Secondi di carne","Burger & panini"],img:"m09_kebab_pollo_light.jpg",kcal:400,p:38,sn:"melarossa",src:"https://www.melarossa.it/ricette/per-categoria/kebab-di-pollo-light/",ing:"200 g cosce + 200 g petto di pollo Â· spezie kebab Â· yogurt magro Â· piadine Â· (insalata, pomodoro)",st:"Marina il pollo 1h, cuoci in padella a fiamma viva, farcisci la piadina con salsa allo yogurt.",cook:"Padella Â· ~15 min",tip:"Il kebab del sabato sera, fatto in casa e magro. Salsa di yogurt al posto di quelle grasse. Verdure a piacere."},
- {t:"Pulled pork",c:["Secondi di carne","Burger & panini"],img:"m10_pulled_pork.jpeg",kcal:450,p:35,sn:"cucinaesvago",src:"https://www.cucinaesvago.it/pulled-pork-fatto-casa-ricetta-americana-1041/",ing:"1,5 kg spalla di maiale Â· senape Â· ketchup Â· spezie (cumino, paprika, zenzero) Â· cipolla Â· birra Â· pane",st:"Massaggia con le spezie (riposo una notte), rosola, sfuma con birra e cuoci lento ~4 ore. Sfilaccia e farcisci i panini.",cook:"Cottura lenta Â· ~4 ore",tip:"Esattamente quello che volevi: il pulled pork americano. Cottura lunga ma carne magrissima sfilacciata, tanta proteina."},
- {t:"Chili con carne",c:["Primi","Secondi di carne"],img:"m11_chili_con_carne_fit.png",kcal:271,p:30,sn:"gymbeam",src:"https://gymbeam.com/blog/fitness-recipe-traditional-mexican-chilli-con-carne-with-rice/",ing:"400 g macinato magro Â· pomodori Â· fagioli Â· mais Â· cipolla, aglio Â· spezie messicane Â· cioccolato fondente",st:"Soffriggi, rosola la carne con le spezie, aggiungi pomodori e brodo, cuoci 20 min, unisci fagioli e mais. Servi col riso.",cook:"Fornello Â· ~30 min",tip:"Solo 271 kcal e 30 g proteine. I fagioli ti danno la FIBRA che ti manca, mimetizzati nel gusto piccante."},
- {t:"Straccetti di pollo speziati",c:["Secondi di carne"],af:1,img:"m12_straccetti_pollo_airfryer.jpg",kcal:300,p:38,sn:"rossellainpadella",src:"https://blog.giallozafferano.it/rossellainpadella/ricetta-straccetti-di-pollo-speziati-con-la-friggitrice-ad-aria/",ing:"400 g pollo Â· paprika Â· curry Â· zenzero Â· aglio in polvere Â· noce moscata Â· olio EVO",st:"Pollo a straccetti, condisci con tutte le spezie e l'olio, cuoci su carta forno nel cassetto fino a croccantezza.",cook:"Friggitrice 180Â°C Â· 20-25 min",tip:"Velocissimi e speziati: 38 g di proteine. Buttali sul riso teriyaki o in una piadina."},
- {t:"Nugget di pollo fit",c:["Secondi di carne","Snack & finger food"],img:"m13_nugget_pollo_fit.jpeg",kcal:384,p:50,sn:"myfitnessbrother",src:"https://myfitnessbrother.com/ricetta-fit-nugget-di-pollo-a-basso-contenuto-di-grassi-e-carboidrati/",ing:"200 g petto di pollo Â· 15 g farina di riso Â· 20 g fiocchi d'avena Â· 50 ml albume Â· paprika, salvia, spezie",st:"Pollo a strisce, panatura albume â†’ riso â†’ albume â†’ avena; inforna a 230Â°C (o friggitrice ad aria).",cook:"Forno 230Â°C Â· 25 min",tip:"Il re delle proteine: 50 g in una porzione, solo 6,7 g di grassi. Panatura all'avena al posto del pangrattato."}
+const goalData={dim:{t:2600,n:"Deficit dolce dal tuo reale (~3.000). Primo scalino: ~2.600 kcal. Si cala senza fame."},
+  man:{t:2900,n:"Mantenimento: resti stabile mangiando come ti piace, in equilibrio."},
+  for:{t:2800,n:"Più proteine e un filo di calorie in più per sostenere il movimento."}};
+let kcalToday=0;
+function drawRing(){
+  const tgt=parseInt(document.getElementById('kcalTgt').textContent.replace(/\D/g,''));
+  const frac=Math.min(1,kcalToday/tgt), C=2*Math.PI*52;
+  document.getElementById('kcalArc').setAttribute('stroke-dasharray',(frac*C)+" "+C);
+  document.getElementById('kcalNow').textContent=kcalToday.toLocaleString('it-IT');
+}
+function setGoal(g){
+  document.querySelectorAll('#goals button').forEach(b=>b.classList.toggle('on',b.dataset.g===g));
+  document.getElementById('kcalTgt').textContent=goalData[g].t.toLocaleString('it-IT');
+  document.getElementById('goalNote').textContent=goalData[g].n;
+  drawRing();
+}
+document.querySelectorAll('#goals button').forEach(b=>b.onclick=()=>setGoal(b.dataset.g));
+setGoal('dim');
+
+const diary=[
+ {date:"16 giugno",meal:"Cena",desc:"Crostoni di pane di grano duro con mozzarella, olio, pepe, origano + 200 g prosciutto crudo (9 fette)",kcal:1990,p:110,sem:"bad",
+  note:"Ottime proteine, ma porzione e sale alti (≈10-11 g, il doppio del consigliato) e mangiata tardi. 6-7 fette + 150 g prosciutto sarebbero bastate (-400 kcal)."}
+];
+function renderDiary(){
+  const el=document.getElementById('diaryList');
+  if(!diary.length){el.innerHTML='<p class="empty">Ancora nessun pasto. Mandami la prima foto in chat!</p>';return;}
+  const col={bad:'var(--red)',warn:'var(--amber)',ok:'var(--accent)'};
+  el.innerHTML=diary.map(m=>'<div class="meal"><div class="dot" style="background:'+col[m.sem]+'"></div>'+
+    '<div><div style="font-weight:600">'+m.meal+' · '+m.date+'</div>'+
+    '<div style="color:var(--muted);font-size:15px;margin:2px 0 7px">'+m.desc+'</div>'+
+    '<div><span class="pill '+(m.sem==='bad'?'bad':m.sem==='warn'?'warn':'')+'">~'+m.kcal.toLocaleString('it-IT')+' kcal</span> <span class="pill">'+m.p+' g proteine</span></div>'+
+    '<div style="color:var(--muted);font-size:14px;margin-top:8px">'+m.note+'</div></div></div>').join('');
+}
+renderDiary();
+
+const H=1.72;
+function bmiCatName(b){return b<18.5?"Sottopeso":b<25?"Normopeso":b<30?"Sovrappeso":"Obesità";}
+function updateBody(w){
+  const bmi=w/(H*H);
+  document.getElementById('wVal').textContent=w;
+  document.getElementById('bmiPill').textContent="BMI "+bmi.toFixed(1).replace('.',',');
+  document.getElementById('bmiCat').textContent=bmiCatName(bmi)+(bmi>=30?" — lavoriamo per scendere":bmi>=25?" — quasi nel normopeso":" — ottimo!");
+  let pos=Math.max(0,Math.min(100,((bmi-18.5)/(34-18.5))*100));
+  document.getElementById('bmiKnob').style.left=pos+"%";
+  const sx=Math.max(.78,Math.min(1.34,0.86+(bmi-21)*0.034));
+  document.getElementById('body').setAttribute('transform','translate(60,138) scale('+(0.5+sx*0.5)+',1) translate(-60,-138)');
+}
+const wr=document.getElementById('wRange');
+wr.oninput=()=>updateBody(parseInt(wr.value));
+updateBody(92);
+
+(function(){
+  const svg=document.getElementById('weightChart');
+  svg.innerHTML='<circle cx="160" cy="80" r="6" fill="var(--accent)"/><text x="160" y="56" text-anchor="middle" fill="var(--muted)" font-size="14">92 kg</text>';
+})();
+
+function getSpesa(){try{return JSON.parse(localStorage.getItem('spesa')||'[]')}catch(e){return[]}}
+function setSpesa(a){localStorage.setItem('spesa',JSON.stringify(a))}
+function addToSpesa(idx){const a=getSpesa();if(!a.includes(idx)){a.push(idx);setSpesa(a);}}
+function renderSpesa(){
+  const el=document.getElementById('spesaList'), a=getSpesa();
+  const clr=document.getElementById('clearSpesa');
+  if(!a.length){el.innerHTML='<p class="empty">Lista vuota. Apri una ricetta e tocca “Aggiungi alla spesa”.</p>';clr.style.display='none';return;}
+  clr.style.display='inline-flex';
+  let checked=JSON.parse(localStorage.getItem('spesaCheck')||'{}');
+  el.innerHTML=a.map(idx=>{const r=R[idx];
+    const items=r.ing.split('·').map(s=>s.trim()).filter(Boolean);
+    return '<div style="margin-bottom:18px"><div style="font-weight:600;margin-bottom:6px">'+r.t+'</div>'+
+      items.map((it,i)=>{const key=idx+'_'+i;const on=checked[key];
+      return '<label class="spesa-item '+(on?'done':'')+'"><input type="checkbox" data-k="'+key+'" '+(on?'checked':'')+'><span>'+it+'</span></label>'}).join('')+'</div>';
+  }).join('');
+  el.querySelectorAll('input').forEach(cb=>cb.onchange=()=>{
+    let c=JSON.parse(localStorage.getItem('spesaCheck')||'{}');c[cb.dataset.k]=cb.checked;
+    localStorage.setItem('spesaCheck',JSON.stringify(c));cb.closest('.spesa-item').classList.toggle('done',cb.checked);
+  });
+}
+document.getElementById('clearSpesa').onclick=()=>{setSpesa([]);localStorage.setItem('spesaCheck','{}');renderSpesa();};
+
+const R=[
+ {t:"Cheeseburger fatto in casa",c:["Burger e panini"],img:"01_hamburger_cheeseburger.jpg",kcal:650,p:38,sn:"piovonoricette",cook:"Padella · ~10 min",ing:"300 g controfiletto di manzo macinato · 1 cucchiaino salsa Worcestershire · 1 cucchiaino paprika affumicata · 2 panini da hamburger · 2 sottilette + 50 g cheddar · pomodoro · lattuga · cipollotto rosso · maionese, senape, salsa barbecue",st:["Condisci la carne con Worcestershire e paprika, dividi in 2 e forma gli hamburger con un coppapasta.","Prepara le farciture: pomodoro a fette, cipollotto a rondelle, lattuga lavata.","Cuoci gli hamburger in padella 3-4 minuti per lato, aggiungendo il formaggio a fine cottura perché fonda.","Tosta i panini e componi con salse, lattuga, pomodoro, carne col formaggio e cipollotto."],tip:"Usa macinato magro al 5%, un solo formaggio e una salsa di yogurt greco + senape al posto di maionese e barbecue: scendi a circa 520 kcal. È il tuo sabato del burger."},
+ {t:"Patatine stick croccanti",c:["Snack e finger food"],af:1,img:"02_patatine_stick_airfryer.jpg",kcal:330,p:10,sn:"clapfood",cook:"Friggitrice ad aria 200°C · 15 min",ing:"500 g patate stick surgelate · 100 g parmigiano grattugiato · 80 g pangrattato · olio EVO · sale · origano (facoltativo)",st:["Versa le patate nel cestello.","Aggiungi pangrattato, parmigiano, un filo d'olio, sale e origano, e mescola bene.","Cuoci girando a metà e scuotendo il cestello per una doratura uniforme."],tip:"Dimezza parmigiano e pangrattato e scendi a circa 230 kcal. Comunque molto meglio delle fritte in olio."},
+ {t:"Pollo fritto croccante tipo KFC",c:["Secondi di carne"],img:"03_pollo_fritto_kfc.jpg",kcal:520,p:42,sn:"padelletegliecucchiarell",cook:"Frittura · ~20 min (o air fryer)",ing:"3 petti di pollo · 1 cucchiaio aglio granulare · 2 cucchiai paprika piccante · farina · sale e pepe · 2 uova + 2 cucchiai di latte · 200 g corn flakes · olio di semi",st:["Taglia il pollo a pezzi allungati e condiscili con aglio e paprika.","Prepara tre stazioni: farina con pepe; uova sbattute con latte e sale; corn flakes sbriciolati.","Passa ogni pezzo in farina, poi nell'uovo e infine nei corn flakes.","Friggi in olio a temperatura media-alta, girando fino a doratura uniforme."],tip:"Stessa panatura ai corn flakes ma in friggitrice ad aria a 200°C per 12-15 minuti con uno spruzzo d'olio: scendi a circa 380 kcal mantenendo il croccante. Diventa il tuo pollo fritto buono."},
+ {t:"Nuggets di pollo",c:["Secondi di carne","Snack e finger food"],af:1,img:"04_nuggets_pollo_airfryer.jpg",kcal:330,p:32,sn:"lemillericettedivale",cook:"Friggitrice ad aria 190°C · 17 min",ing:"300 g petto di pollo · 2 uova · 200 g farina 00 · pangrattato · olio EVO (qualche spruzzo) · sale",st:["Taglia il pollo a pezzetti uniformi.","Prepara tre ciotole: farina, uova sbattute, pangrattato salato.","Passa i pezzetti in farina, uova e pangrattato.","Preriscalda la friggitrice, adagia i nuggets con un leggero spruzzo d'olio e cuoci girando a metà."],tip:"Già ottimi così: proteici e senza frittura. Perfetti con le patatine in friggitrice ad aria."},
+ {t:"Pollo e riso bianco in salsa teriyaki",c:["Primi","Secondi di carne"],img:"05_riso_pollo_teriyaki.jpg",kcal:400,p:20,sn:"iltronodiforchette",cook:"Forno 180°C · 15 min (+ 30 min marinatura)",ing:"300 g riso · 200 g petto di pollo · 40 g zucchero di canna · 30 g sake · 60 ml salsa di soia · 15 g zenzero · aglio, pepe nero, amido di riso · erba cipollina e sesamo",st:["Prepara la salsa teriyaki con soia, sake, zucchero, zenzero e aglio.","Marina il petto di pollo 30 minuti in frigorifero.","Cuoci il pollo in forno a 180°C per 10-15 minuti; nel frattempo lessa il riso.","Addensa la salsa rimasta con un po' di amido. Taglia il pollo a cubetti, spennellalo e servi sul riso con sesamo."],tip:"Dosa la salsa (zucchero + sale) invece di annegarci il riso. Aumenta il pollo a 250 g per più proteine."},
+ {t:"Salsiccia e patate",c:["Secondi di carne"],af:1,img:"06_patate_salsiccia_airfryer.jpeg",kcal:560,p:22,sn:"lemillericettedivale",cook:"Friggitrice ad aria 190°C · 25 min",ing:"400 g salsiccia · 400 g patate novelle · 1 filo d'olio EVO · rosmarino · sale",st:["Taglia le patate a spicchi e condiscile con olio, sale e rosmarino.","Taglia la salsiccia a pezzi.","Trasferisci tutto nel cestello e cuoci girando due volte (la salsiccia perde il grasso che cola via)."],tip:"Tieni circa 130 g di salsiccia a testa: l'air fryer fa colare via il grasso in eccesso, vantaggio rispetto al forno."},
+ {t:"Involtini primavera",c:["Snack e finger food"],af:1,img:"07_involtini_primavera_airfryer.jpg",kcal:90,p:2,sn:"saporepuro",cook:"Friggitrice ad aria · ~22 min (90 kcal a pezzo)",ing:"200 g farina 00 + 100 g acqua calda (sfoglia) · 1 zucchina · 2 carote · 1/4 di verza · 1 cipolla · salsa di soia · aceto balsamico · sale · albume per sigillare",st:["Impasta farina, sale e acqua bollente e fai riposare 1 ora.","Taglia le verdure a bastoncini e cuocile in friggitrice 7 minuti a 170°C, poi condisci con aceto, soia e sale.","Stendi 10 sfoglie e precuocile 8 minuti a 190°C.","Farcisci, chiudi a fagottino sigillando con l'albume e cuoci 7 minuti a 200°C."],tip:"La verdura è tritata e cotta dentro la sfoglia, quasi invisibile. In alternativa comprali surgelati e cuocili solo in air fryer a 200°C per 8-10 minuti."},
+ {t:"Pizza margherita fatta in casa",c:["Classici"],img:"08_pizza_margherita.jpg",kcal:750,p:25,sn:"cucinoperpassione",cook:"Forno 200°C · 20 min (per pizza)",ing:"500 g farina 0 · 300 ml acqua · 5 g lievito di birra secco · 1 cucchiaino malto · 15 g sale · 2 cucchiai olio EVO · passata di pomodoro · 2 mozzarelle · origano",st:["Sciogli il lievito in acqua, aggiungi malto e farina, poi incorpora olio e sale.","Forma una palla e fai lievitare in frigorifero tutta la notte, poi a temperatura ambiente.","Stendi su teglia (o in 4 pizze singole) e condisci con passata, mozzarella e origano.","Inforna a 200°C fino a doratura."],tip:"È la tua pizza programmata una volta a settimana. Fatta in casa usi 100 g di mozzarella e controlli l'olio. Quel giorno fai un pranzo leggero per fare spazio."},
+ {t:"Pasta alla carbonara",c:["Primi"],img:"09_pasta_carbonara.jpg",kcal:850,p:30,sn:"unsecondoincucina",cook:"Bollitura · ~13 min",ing:"320 g pasta · 260 g guanciale · 5 tuorli d'uovo · 100 g pecorino romano · pepe nero · sale grosso",st:["Pulisci il guanciale, togli la cotenna, affettalo a listarelle e rosolalo senza grassi fino a renderlo croccante.","Prepara la crema mescolando tuorli, pecorino e parte del grasso del guanciale.","Cuoci la pasta al dente, scolala e mantecala con la crema e metà del guanciale.","Impiatta con il guanciale croccante rimasto e una macinata di pepe."],tip:"80 g di pasta a testa e guanciale 40 g invece di 65: scendi a circa 600 kcal e resta buonissima. È il piatto da dosare con attenzione."},
+ {t:"Spaghetti aglio, olio e peperoncino",c:["Primi"],img:"10_pasta_aglio_olio.jpg",kcal:450,p:11,sn:"valeriaciccotti",cook:"Fornello · ~10 min",ing:"350 g spaghetti · 2 spicchi d'aglio · 2 peperoncini freschi (facoltativi) · olio EVO",st:["Metti a bollire l'acqua per la pasta.","In padella scalda abbondante olio con aglio e peperoncino a pezzetti e soffriggi un paio di minuti.","Cuoci gli spaghetti al dente e scolali nella padella del condimento.","Aggiungi un mestolo di acqua di cottura e salta per amalgamare."],tip:"Senza verdura, semplice. L'unica leva è la dose d'olio: un cucchiaio a testa. Porzione di pasta 80-90 g."},
+ {t:"Piadina romagnola",c:["Burger e panini"],img:"11_piadina_romagnola.jpg",kcal:500,p:22,sn:"incucinacongiorgia",cook:"Piastra · ~5 min",ing:"520 g farina 0 · 75 g strutto (o olio EVO) · 10 g sale · 1 bustina lievito istantaneo salato · 300 ml latte · 4 gocce di miele · salumi e formaggio per farcire",st:["Fai la fontana con la farina e aggiungi strutto, sale e lievito.","Incorpora il latte fino a un impasto morbido.","Dividi in 5 palline e stendi con il mattarello in dischi tondi.","Cuoci su piastra calda fino ai tipici pallini marroni, poi farcisci con salumi e formaggio."],tip:"Usa olio invece dello strutto e farcisci con bresaola o prosciutto cotto magro + mozzarella light. Una piadina sola (non due): pasto da circa 430 kcal."},
+ {t:"Crostone con prosciutto e mozzarella",c:["Snack e finger food","Secondi di carne"],img:"12_crostone_mozzarella_prosciutto.jpg",kcal:720,p:35,sn:"cucinaprediletta",cook:"Forno 220°C · 8-10 min (per crostone)",ing:"2 fette di pane per bruschette (~100 g l'una) · 250 g mozzarella · 120 g prosciutto a fette · 6 cucchiai passata di pomodoro · 1 pizzico aglio in polvere · olio EVO · origano · sale",st:["Cuoci la passata con olio, aglio e origano per 5 minuti.","Affetta la mozzarella.","Distribuisci sulle fette di pane passata e mozzarella e inforna fino a fusione del formaggio.","Aggiungi il prosciutto spezzettato all'uscita dal forno."],tip:"È la tua cena, in versione giusta: 2 fette grandi, non 9. Attento al sale (mozzarella + prosciutto): bevi più acqua."},
+ {t:"Lenticchie con salsiccia in umido",c:["Secondi di carne"],img:"13_lenticchie_salsiccia.jpg",kcal:470,p:25,sn:"ilchiccodimais",cook:"Fornello · ~40 min",ing:"250 g lenticchie · 4 salsicce · 1 carota · 1 costa di sedano · 1/2 cipolla · 250 g polpa di pomodoro · 3 cucchiai olio EVO · sale e pepe",st:["Sciacqua le lenticchie e ammollale 2 ore.","Sgrassa le salsicce lessandole 10 minuti.","Rosola il soffritto in olio, aggiungi pomodoro e lenticchie con acqua calda e cuoci 30-40 minuti a fuoco dolce.","Rosola le salsicce in padella e uniscile negli ultimi 15 minuti, terminando scoperto per addensare."],tip:"Il piatto chiave per la tua fibra, che manca col no-verdura. Il soffritto si scioglie nel sugo, non lo vedi. Puntiamo a 1-2 volte a settimana."},
+ {t:"Gyoza, ravioli giapponesi",c:["Snack e finger food"],img:"14_gyoza_ravioli.jpg",kcal:250,p:12,sn:"incucinaconchiara",cook:"Padella · ~10 min (5-6 ravioli)",ing:"150 g farina 0 + 115 g acqua caldissima (pasta) · 80 g carne di suino macinata · 80 g cavolo verza · 30 g cipollotto · 1/2 spicchio aglio · zenzero · 20 ml salsa di soia · 10 ml olio di sesamo · pepe nero",st:["Prepara l'impasto con acqua calda e farina e fai riposare 30 minuti.","Trita finemente verza, cipollotto e aglio e amalgama con la carne, soia, olio di sesamo e zenzero.","Stendi la pasta, ricava dei dischi, farciscili e chiudili a mezzaluna con le pieghette.","Cuoci in padella con olio 3 minuti, poi aggiungi acqua, copri e cuoci a vapore 8 minuti."],tip:"La verza è tritata fine nel ripieno, impercettibile. È la versione fatta in casa dei tuoi ravioli."},
+
+ {t:"Patatine in friggitrice ad aria",c:["Snack e finger food"],af:1,img:"f01_patatine_airfryer.jpg",kcal:220,p:4,sn:"cookingwithsere",cook:"Friggitrice ad aria 200°C · 15-20 min",ing:"4 patate grandi · 1 cucchiaio d'olio · sale",st:["Sbuccia le patate e tagliale a bastoncini uniformi di circa mezzo centimetro.","Mettile in ammollo in acqua fredda 30 minuti per togliere l'amido, poi asciugale bene.","Condiscile in una ciotola con un cucchiaio d'olio mescolando.","Disponile in un solo strato nel cestello, cuoci scuotendo ogni 5 minuti e sala subito a fine cottura."],tip:"La versione più magra delle patatine: un solo cucchiaio d'olio. Ottimo contorno del cheeseburger."},
+ {t:"Stick di mozzarella",c:["Snack e finger food"],af:1,img:"f02_mozzarella_sticks_airfryer.jpg",kcal:250,p:14,sn:"cioccolimone",cook:"Friggitrice ad aria 200°C · 7-8 min",ing:"1 confezione di mozzarella per pizza · 3 uova · farina · pangrattato · farina di mais · sale e pepe · olio EVO spray · salsa: 5 cucchiai senape + 1 cucchiaino miele",st:["Taglia la mozzarella a stick uniformi.","Sbatti le uova con sale e pepe.","Passa ogni stick nella farina, poi nell'uovo e infine nel pangrattato (o farina di mais).","Olia il cestello, disponi gli stick senza sovrapporli, spruzza d'olio e cuoci. Servi con la salsa senape e miele."],tip:"Sfizio goloso ma proteico. Mettili in freezer 10 minuti prima di cuocere così non colano."},
+ {t:"Bocconcini di pollo impanati",c:["Secondi di carne","Snack e finger food"],af:1,img:"f03_bocconcini_pollo_airfryer.webp",kcal:300,p:35,sn:"friggitriceadariacookinglab",cook:"Friggitrice ad aria 200°C · 10 min",ing:"400 g petto di pollo · 2 uova · farina · panko · sale · aglio in polvere · paprika affumicata · olio EVO spray",st:["Taglia il pollo a bocconcini uniformi e tampona con carta.","Passa in farina e scuoti l'eccesso.","Immergi nell'uovo sbattuto con sale.","Mescola il panko con le spezie, impana i bocconcini pressando bene, spruzza d'olio e cuoci fino a doratura."],tip:"Il panko li rende super croccanti: 35 g di proteine, pochissimi grassi."},
+ {t:"Arancini al forno",c:["Snack e finger food"],img:"f04_arancini_al_forno.jpg",kcal:250,p:8,sn:"tavolartegusto",cook:"Forno 180°C · 25 min (a pezzo)",ing:"500 g riso · zafferano · burro · ragù di carne (maiale e manzo) · caciocavallo · pastella di farina e acqua · pangrattato",st:["Lessa il riso al dente, condiscilo con burro e zafferano e fallo raffreddare.","Prepara il ragù e lascialo cuocere; unisci il caciocavallo.","Forma gli arancini con un incavo, farcisci con ragù e un pezzetto di formaggio e sigilla col riso.","Passa in pastella e pangrattato e cuoci in forno su teglia con un filo d'olio, girandoli a metà."],tip:"Versione al forno: niente bagno d'olio. Lo sfizio della domenica, controllato."},
+ {t:"Brownies proteici",c:["Dolci e colazione"],img:"f05_brownies_proteici.jpg",kcal:250,p:12,sn:"cookist",cook:"Forno 180°C · 20 min",ing:"250 g albume · 200 g cioccolato fondente · 180 g farina d'avena · 125 g zucchero di canna · 100 g nocciole tostate · 50 g cacao amaro · 3 cucchiaini burro d'arachidi · 1 cucchiaino lievito · 1 pizzico di sale",st:["Trita parte delle nocciole e mescola farina d'avena, nocciole, cacao, lievito e sale.","Sciogli cioccolato e burro d'arachidi a fuoco dolce.","Monta gli albumi a neve con lo zucchero e uniscili al cioccolato con la spatola.","Incorpora le polveri, versa in teglia, decora con le nocciole rimaste e inforna; poi taglia a quadrotti."],tip:"Il dolce al cioccolato che puoi permetterti: proteico e con avena. Goloso ma sotto controllo."},
+ {t:"Maxi cookie proteico al cacao",c:["Dolci e colazione"],img:"f06_cookie_proteico_cacao.jpg",kcal:325,p:24,sn:"fitwithfun",cook:"Microonde 1000W · 3-4 min",ing:"100 g banana · 20 g cacao amaro · 20 g farina a scelta · 20 g proteine in polvere al cioccolato · 10 g burro d'arachidi · cannella · lievito",st:["Schiaccia o frulla la banana e unisci tutti gli altri ingredienti.","Versa l'impasto su carta forno e modellalo a mano (spolvera le mani di cacao).","Decora a piacere con gocce di cioccolato.","Cuoci al microonde a massima potenza per 3-4 minuti, aprendo lo sportello ogni tanto. Resta morbido ma compatto."],tip:"Pronto in 5 minuti e 24 g di proteine. Lo snack dolce che sazia davvero."},
+ {t:"Muffin proteici al cioccolato",c:["Dolci e colazione"],img:"f07_muffin_proteici.jpg",kcal:69,p:8,sn:"onemore-nutrition",cook:"Forno 180°C · 20 min (a muffin)",ing:"1 misurino whey al cioccolato · 50 g farina d'avena · 200 g albume · 100 g yogurt greco magro · 20 g cioccolato fondente · dolcificante (facoltativo)",st:["Preriscalda il forno a 180°C e monta l'albume a neve.","Aggiungi yogurt greco, farina d'avena, proteine e dolcificante, mescolando delicatamente.","Riempi gli stampi con circa 1 cm di impasto e metti il cioccolato al centro di ogni muffin.","Copri con altro impasto e inforna."],tip:"Solo 69 kcal a muffin: te ne mangi due senza pensieri. Ottimi a colazione."},
+ {t:"Pancake proteici",c:["Dolci e colazione"],img:"f08_pancake_proteici.jpg",kcal:335,p:30,sn:"projectinvictus",cook:"Padella · pochi minuti",ing:"150 g albume · 40 g farina d'avena integrale · 1 banana piccola matura · 30 g yogurt greco 0% · 1 pizzico di bicarbonato",st:["Frulla o schiaccia la banana e unisci tutti gli ingredienti fino a una pastella omogenea.","Cuoci in padella antiaderente fino a doratura su entrambi i lati.","Servi con frutta fresca, yogurt greco, miele o creme di frutta secca."],tip:"30 g di proteine a colazione: se mai inizierai a fare colazione, è da qui che parti."},
+ {t:"French toast proteico",c:["Dolci e colazione"],img:"f09_french_toast_proteico.jpg",kcal:300,p:25,sn:"myprotein",cook:"Padella · pochi minuti",ing:"60 g albume · 25 ml latte vegetale · 1 cucchiaino cannella · 4 fette di pane · creme: 60 g protein dessert vaniglia + 30 g yogurt magro; 10 g whey cioccolato + 10 g acqua",st:["Mescola albume, latte e cannella.","Inzuppa le fette di pane e cuocile in padella su entrambi i lati fino a doratura.","Frulla il protein dessert con lo yogurt per la crema alla vaniglia.","Mescola la whey al cioccolato con l'acqua e alterna le due creme sulle fette."],tip:"La colazione da bar, ma proteica e leggera. Golosa e furba."},
+ {t:"Crêpes proteiche al cioccolato",c:["Dolci e colazione"],img:"f10_crepes_proteiche_cioccolato.jpg",kcal:200,p:12,sn:"cookist",cook:"Padella · 2 min per lato",ing:"80 g albumi · 70 ml latte di soia · 50 g farina d'avena · 5 g cacao · yogurt greco · cioccolato fondente fuso · granella di cocco",st:["Mescola con la frusta albumi, latte di soia, farina d'avena e cacao.","Versa l'impasto in padella antiaderente calda.","Cuoci 2 minuti per lato.","Farcisci ogni crêpe con yogurt greco, piega e decora con cioccolato fuso e granella di cocco."],tip:"Dolce al cioccolato da 200 kcal. Per la voglia di dolce serale senza sgarrare."},
+ {t:"Overnight oats al cacao",c:["Dolci e colazione"],img:"f11_overnight_oats_cacao.jpg",kcal:180,p:15,sn:"a tavola con tea",cook:"Senza cottura · riposo 4h+",ing:"50 g fiocchi d'avena · 100 ml latte o acqua · 1 cucchiaino miele · 120 g yogurt greco 0% · cacao amaro · yogurt alla vaniglia",st:["Mescola avena, miele, yogurt e latte; versa nei bicchieri e tieni in frigo almeno 4 ore o tutta la notte.","Aggiungi alla base un cucchiaino di cacao e mescola.","Prepara il secondo strato con yogurt, cacao e miele e distribuiscilo.","Copri con lo yogurt alla vaniglia, livella e spolvera di cacao."],tip:"Lo prepari la sera, è pronto la mattina. 180 kcal e 15 g di proteine, al cioccolato."},
+ {t:"Gelato proteico istantaneo",c:["Dolci e colazione"],img:"f12_gelato_proteico.jpg",kcal:190,p:27,sn:"fitwithfun",cook:"Frullatore · 5 min",ing:"30 g proteine in polvere aromatizzate · 10 g cacao amaro · 250 ml latte a scelta · 100 g ghiaccio · 3 g gomma di xantano · vaniglia",st:["Togli il ghiaccio dal freezer 5 minuti prima.","Mescola in una ciotola cacao, proteine e xantano.","Versa nel frullatore con il latte e frulla.","Aggiungi il ghiaccio e frulla di nuovo fino a consistenza cremosa. Servi subito."],tip:"Il gelato al cioccolato che non ti fa ingrassare: 190 kcal e 27 g di proteine. Sostituisce il cioccolatino serale."},
+
+ {t:"Ali di pollo BBQ",c:["Secondi di carne"],af:1,img:"m01_ali_pollo_bbq_airfryer.jpg",kcal:400,p:30,sn:"Cookist",cook:"Friggitrice ad aria 200°C · 40 min",ing:"8 ali di pollo · aglio in polvere · cipolla in polvere · curry · prezzemolo · sale e pepe · olio EVO · salsa BBQ",st:["Condisci le ali in una pirofila con spezie, erbe e un filo d'olio e mescola bene.","Trasferisci nel cestello.","Cuoci girando a metà.","Termina la cottura fino a doratura croccante e servi con salsa BBQ."],tip:"Le wings da pub, ma senza frittura. Da sgranocchiare guardando la partita."},
+ {t:"Alette di pollo croccanti",c:["Secondi di carne"],af:1,img:"m02_alette_pollo_croccanti.jpeg",kcal:450,p:35,sn:"ilcuoreinpentola",cook:"Friggitrice ad aria 180-200°C",ing:"12 alette di pollo · sale · rosmarino tritato · paprika · pepe o peperoncino · olio d'oliva",st:["Lava e sgocciola le alette.","Disponile nel cestello e condisci con sale, rosmarino, paprika e olio.","Cuoci, poi gira e condisci l'altro lato.","Alza la temperatura per dorarle fino a croccantezza."],tip:"Croccanti come fritte. Tieni la pelle per il gusto pieno, toglila per alleggerire."},
+ {t:"Cotolette di pollo",c:["Secondi di carne"],af:1,img:"m03_cotolette_pollo_airfryer.jpg",kcal:350,p:40,sn:"primochef",cook:"Friggitrice ad aria 200°C · 8 min",ing:"4 fettine di petto di pollo · 2 uova · pangrattato · farina · sale · olio spray",st:["Batti le fettine a circa mezzo centimetro.","Prepara tre piatti: farina, uova sbattute con sale e pepe, pangrattato.","Impana in sequenza farina, uovo e pangrattato (eventuale doppia panatura).","Disponi nel cestello senza sovrapporre, spruzza d'olio e cuoci girando a metà."],tip:"La milanese senza il bagno d'olio: 40 g di proteine, croccante uguale. Mettila col purè o le patatine in air fryer."},
+ {t:"Bacon croccante",c:["Snack e finger food","Secondi di carne"],af:1,img:"m04_bacon_croccante_airfryer.jpg",kcal:200,p:12,sn:"primochef",cook:"Friggitrice ad aria 170°C · 5 min",ing:"12 fette di bacon (non troppo spesse)",st:["Disponi le fette nel cestello senza carta forno (serve la circolazione d'aria) e senza sovrapporle.","Non aggiungere sale o olio: il bacon è già saporito.","Cuoci controllando a metà per non bruciarlo.","Scola su carta assorbente."],tip:"In 5 minuti, croccante e con metà del grasso che cola via. Perfetto sul cheeseburger o da solo."},
+ {t:"Polpette light",c:["Secondi di carne"],af:1,img:"m05_polpette_light_airfryer.jpg",kcal:300,p:28,sn:"dietaepalestra",cook:"Friggitrice ad aria 180°C · 20 min",ing:"500 g macinato magro · 50 g albume + 1 uovo · 30 g grana grattugiato · 100 g scamorza affumicata · 100 g latte · 2 fette di pancarrè · aglio · prezzemolo · 50 g pangrattato · sale e pepe · olio",st:["Unisci in una ciotola tutti gli ingredienti tranne pane e latte.","Ammolla il pancarrè nel latte e incorporalo all'impasto.","Forma polpette da circa 25 g con un cuore di scamorza.","Passale nel pangrattato, spennella d'olio e cuoci nel cestello."],tip:"Cuore di scamorza filante e macinato magro: comfort food proteico al 100%."},
+ {t:"Spiedini di carne",c:["Secondi di carne"],af:1,img:"m06_spiedini_carne_airfryer.jpg",kcal:250,p:25,sn:"buonissimo",cook:"Friggitrice ad aria 200°C · 13-18 min",ing:"250 g carne a cubi · paprika · erbe aromatiche · olio · sale e pepe (verdure a piacere)",st:["Taglia la carne a cubi di 2-3 cm e marinala con olio, sale, pepe, paprika ed erbe per 30 minuti.","Infila la carne sugli spiedini.","Cuoci girando a metà fino a doratura.","Servi caldo con una salsa a piacere."],tip:"La ricetta originale usa tacchino e verdure: per te usa pollo o maiale e salta le verdure. Restano ottimi di sola carne."},
+ {t:"Costine di maiale",c:["Secondi di carne"],af:1,img:"m07_costine_maiale_airfryer.jpg",kcal:500,p:30,sn:"quotidianpost",cook:"Friggitrice ad aria 200°C · 25 min",ing:"500 g costine di maiale con osso · olio spray · sale · pepe · prezzemolo · salsa BBQ (facoltativa)",st:["Preriscalda la friggitrice a 200°C per 5 minuti.","Adagia le costine sul cestello.","Condisci con sale, pepe, olio spray e prezzemolo.","Cuoci girando a metà e di nuovo negli ultimi 5 minuti, fino a crosticina."],tip:"Il sapore della brace senza accendere il barbecue. Pennella con la salsa BBQ negli ultimi 5 minuti."},
+ {t:"Smash burger all'italiana",c:["Burger e panini"],img:"m08_smash_burger.jpg",kcal:650,p:40,sn:"sfizioso",cook:"Piastra · ~10 min",ing:"4 panini da hamburger · 320 g macinato di vitello · 12 fette di speck · 80 g Asiago · 2 cucchiai senape · sale e pepe · olio EVO (friarielli facoltativi)",st:["Condisci il macinato con pepe, senape e Asiago grattugiato e forma 4 palline.","Tosta i panini in padella.","Su piastra rovente schiaccia le palline con carta forno e rosola fino alla crosticina, poi gira e sala.","Fai fondere l'Asiago sulla carne e assembla: senape, burger, speck."],tip:"Lo smash burger vero. I friarielli sono verdura: saltali pure, lo speck dà già tutto il gusto."},
+ {t:"Kebab di pollo light",c:["Secondi di carne","Burger e panini"],img:"m09_kebab_pollo_light.jpg",kcal:400,p:38,sn:"melarossa",cook:"Padella · ~15 min (+ 1h marinatura)",ing:"200 g cosce di pollo · 200 g petto di pollo · spezie miste per kebab · 2 cucchiai olio EVO · 100 g yogurt magro · 4 piadine · insalata e pomodori (facoltativi)",st:["Taglia cosce e petto a pezzetti.","Marina con olio, sale e spezie per 1 ora in frigo; prepara la salsa con yogurt e sale.","Cuoci il pollo in padella antiaderente a fiamma viva mescolando.","Scalda la piadina e farcisci con kebab, salsa allo yogurt ed eventuali verdure."],tip:"Il kebab del sabato sera, fatto in casa e magro. Salsa di yogurt al posto di quelle grasse."},
+ {t:"Pulled pork",c:["Secondi di carne","Burger e panini"],img:"m10_pulled_pork.jpeg",kcal:450,p:35,sn:"cucinaesvago",cook:"Cottura lenta · ~4 ore",ing:"1,5 kg spalla di maiale · 1 cucchiaio senape · 1 cucchiaio ketchup · cumino · coriandolo · zenzero · paprika piccante · aglio · 1 cipolla · 1 bicchiere di birra · olio · sale e pepe · pane da hamburger",st:["Porta la carne a temperatura ambiente e strofinala con aglio e sale.","Massaggia con il mix di senape, ketchup e spezie e lascia riposare in frigo una notte.","Rosola la cipolla, aggiungi la spalla su entrambi i lati e sfuma con la birra.","Cuoci a fuoco lento circa 4 ore, poi sfilaccia con due forchette e farcisci i panini tostati."],tip:"Esattamente quello che volevi: il pulled pork americano. Cottura lunga ma carne magrissima sfilacciata, tantissima proteina."},
+ {t:"Chili con carne",c:["Primi","Secondi di carne"],img:"m11_chili_con_carne_fit.png",kcal:271,p:30,sn:"gymbeam",cook:"Fornello · ~30 min",ing:"400 g macinato magro · 400 g pomodori a cubetti · 350 ml brodo · 120 g fagioli · 50 g mais · 1 cipolla · 3 spicchi aglio · concentrato di pomodoro · 1/2 quadretto cioccolato fondente · paprika · cumino · peperoncino · riso per servire",st:["Soffriggi la cipolla nell'olio fino a trasparenza.","Aggiungi aglio, spezie e la carne e rosola.","Unisci concentrato, pomodori e brodo e cuoci coperto circa 20 minuti.","Aggiungi fagioli e mais, sobbolli 5-10 minuti, sciogli il cioccolato e servi col riso."],tip:"Solo 271 kcal e 30 g di proteine. I fagioli ti danno la fibra che manca, mimetizzati nel gusto piccante."},
+ {t:"Straccetti di pollo speziati",c:["Secondi di carne"],af:1,img:"m12_straccetti_pollo_airfryer.jpg",kcal:300,p:38,sn:"rossellainpadella",cook:"Friggitrice ad aria 180°C · 20-25 min",ing:"400 g pollo · 1 cucchiaino paprika dolce · 1 cucchiaino curry · 1 cucchiaino zenzero · 1 cucchiaino aglio in polvere · noce moscata · sale e pepe · 2 cucchiai olio EVO",st:["Taglia il pollo a straccetti.","Condisci in una ciotola con tutte le spezie e l'olio, mescolando bene.","Disponi su carta forno nel cassetto della friggitrice e aggiungi un filo d'olio.","Cuoci fino a renderli croccanti fuori e teneri dentro."],tip:"Velocissimi e speziati: 38 g di proteine. Buttali sul riso teriyaki o in una piadina."},
+ {t:"Nugget di pollo fit",c:["Secondi di carne","Snack e finger food"],img:"m13_nugget_pollo_fit.jpeg",kcal:384,p:50,sn:"myfitnessbrother",cook:"Forno 230°C · 25 min (o air fryer)",ing:"200 g petto di pollo · 15 g farina di riso · 20 g fiocchi d'avena · 50 ml albume · sale · paprika affumicata · salvia · pepe · peperoncino",st:["Preriscalda il forno a 230°C.","Prepara tre ciotole: farina di riso con sale e spezie, avena, albume.","Taglia il pollo a strisce di circa 1 cm.","Impana nella sequenza albume, riso, albume, avena e cuoci su teglia (o in friggitrice ad aria)."],tip:"Il re delle proteine: 50 g in una porzione, solo 6,7 g di grassi. Panatura all'avena al posto del pangrattato."}
 ];
 
-const grid=document.getElementById('grid'), chipsEl=document.getElementById('chips'),
-      qEl=document.getElementById('q'), countEl=document.getElementById('count'),
-      overlay=document.getElementById('overlay'), modal=document.getElementById('modal');
-const cats=["Tutte","Friggitrice ad aria","Secondi di carne","Burger & panini","Snack & finger food","Primi","Dolci & colazione","Classici"];
+const rgrid=document.getElementById('rgrid'), chipsEl=document.getElementById('chips'),
+ qEl=document.getElementById('q'), rcount=document.getElementById('rcount'),
+ overlay=document.getElementById('overlay'), modal=document.getElementById('modal');
+const cats=["Tutte","Friggitrice ad aria","Secondi di carne","Burger e panini","Snack e finger food","Primi","Dolci e colazione","Classici"];
 let active="Tutte", query="";
-
-cats.forEach(c=>{const b=document.createElement('button');b.className='chip'+(c==="Tutte"?' on':'');
-  b.textContent=c;b.onclick=()=>{active=c;[...chipsEl.children].forEach(x=>x.classList.remove('on'));b.classList.add('on');render();};
-  chipsEl.appendChild(b);});
-
-function match(r){
-  if(active==="Friggitrice ad aria" && !r.af) return false;
-  if(active!=="Tutte" && active!=="Friggitrice ad aria" && !r.c.includes(active)) return false;
+cats.forEach(c=>{const b=document.createElement('button');b.className='chip'+(c==="Tutte"?' on':'');b.textContent=c;
+  b.onclick=()=>{active=c;[...chipsEl.children].forEach(x=>x.classList.remove('on'));b.classList.add('on');renderR();};chipsEl.appendChild(b);});
+function matchR(r){
+  if(active==="Friggitrice ad aria"&&!r.af)return false;
+  if(active!=="Tutte"&&active!=="Friggitrice ad aria"&&!r.c.includes(active))return false;
   if(query){const h=(r.t+" "+r.ing+" "+r.c.join(" ")).toLowerCase();if(!h.includes(query))return false;}
   return true;
 }
-function render(){
-  const list=R.filter(match);
-  countEl.textContent=list.length+" ricette"+(active!=="Tutte"?" Â· "+active:"");
-  grid.innerHTML="";
-  list.forEach(r=>{
-    const card=document.createElement('div');card.className='card';
-    const tags=[...(r.af?['<span class="tag af">â˜… Friggitrice ad aria</span>']:[]),
-                '<span class="tag">'+r.c[0]+'</span>'].join('');
-    card.innerHTML=`<img class="thumb" loading="lazy" src="immagini/${r.img}" alt="${r.t}">
-      <div class="card-b"><div class="tags">${tags}</div><h3>${r.t}</h3>
-      <div class="meta"><span><b>${r.kcal}</b> kcal</span><span><b>${r.p}</b> g prot</span></div>
-      <div class="src">fonte: ${r.sn}</div></div>`;
-    card.onclick=()=>openModal(r);
-    grid.appendChild(card);
-  });
+function renderR(){
+  const list=R.map((r,i)=>({r,i})).filter(o=>matchR(o.r));
+  rcount.textContent=list.length+" ricette"+(active!=="Tutte"?" · "+active:"");
+  rgrid.innerHTML="";
+  list.forEach(o=>{const r=o.r,i=o.i;const c=document.createElement('div');c.className='rcard';
+    const tags=[].concat(r.af?['<span class="tag af">★ Air fryer</span>']:[]).concat(['<span class="tag">'+r.c[0]+'</span>']).join('');
+    c.innerHTML='<img class="thumb" loading="lazy" src="immagini/'+r.img+'" alt="'+r.t+'">'+
+      '<div class="rb"><div class="tagrow">'+tags+'</div><h3>'+r.t+'</h3>'+
+      '<div class="rmeta"><span><b>'+r.kcal+'</b> kcal</span><span><b>'+r.p+'</b> g prot</span></div></div>';
+    c.onclick=()=>openR(i);rgrid.appendChild(c);});
 }
-function openModal(r){
-  const tags=[...(r.af?['<span class="tag af">â˜… Friggitrice ad aria</span>']:[]),
-              ...r.c.map(c=>'<span class="tag">'+c+'</span>')].join('');
-  modal.innerHTML=`<button class="x" onclick="closeModal()" aria-label="Chiudi">Ã—</button>
-    <img src="immagini/${r.img}" alt="${r.t}">
-    <div class="modal-b">
-      <div class="tags" style="margin-bottom:8px">${tags}</div>
-      <h2>${r.t}</h2>
-      <div class="meta" style="font-size:15px"><span><b>${r.kcal}</b> kcal</span><span><b>${r.p}</b> g proteine</span></div>
-      <span class="cook">${r.cook}</span>
-      <div class="sec"><h4>Ingredienti</h4><p>${r.ing}</p></div>
-      <div class="sec"><h4>Procedimento</h4><p>${r.st}</p></div>
-      ${r.tip?`<div class="tipbox"><b>Per te ðŸ’¡</b> ${r.tip}</div>`:''}
-      <div class="sec"><a class="srclink" href="${r.src}" target="_blank" rel="noopener">Apri la ricetta originale su ${r.sn} â†’</a></div>
-    </div>`;
+function openR(i){const r=R[i];
+  const tags=[].concat(r.af?['<span class="tag af">★ Friggitrice ad aria</span>']:[]).concat(r.c.map(c=>'<span class="tag">'+c+'</span>')).join('');
+  modal.innerHTML='<button class="x" onclick="closeR()" aria-label="Chiudi">×</button>'+
+    '<img src="immagini/'+r.img+'" alt="'+r.t+'">'+
+    '<div class="mb"><div class="tagrow">'+tags+'</div><h2>'+r.t+'</h2>'+
+    '<div class="rmeta"><span><b>'+r.kcal+'</b> kcal</span><span><b>'+r.p+'</b> g proteine</span></div>'+
+    '<span class="cook">'+r.cook+'</span>'+
+    '<div class="sec"><h4>Ingredienti</h4><ul class="ing">'+r.ing.split('·').map(s=>'<li>'+s.trim()+'</li>').join('')+'</ul></div>'+
+    '<div class="sec"><h4>Procedimento</h4><ol class="steps">'+r.st.map(s=>'<li>'+s+'</li>').join('')+'</ol></div>'+
+    '<div class="tipbox"><b>Per te</b> '+r.tip+'</div>'+
+    '<button class="btn" onclick="addToSpesa('+i+');this.textContent=\'✓ Aggiunta alla spesa\';this.disabled=true">+ Aggiungi alla spesa</button>'+
+    '<p class="source">Ricetta riadattata · fonte: '+r.sn+'</p></div>';
   overlay.classList.add('open');document.body.style.overflow='hidden';
 }
-function closeModal(){overlay.classList.remove('open');document.body.style.overflow='';}
-overlay.onclick=e=>{if(e.target===overlay)closeModal();};
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
-qEl.oninput=()=>{query=qEl.value.trim().toLowerCase();render();};
-render();
+function closeR(){overlay.classList.remove('open');document.body.style.overflow='';}
+overlay.onclick=e=>{if(e.target===overlay)closeR();};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeR();});
+qEl.oninput=()=>{query=qEl.value.trim().toLowerCase();renderR();};
+renderR();
 </script>
 </body>
 </html>
-
