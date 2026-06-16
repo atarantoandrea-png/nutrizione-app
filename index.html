@@ -119,6 +119,9 @@
   .spesa-item.done span{text-decoration:line-through;color:var(--muted)}
   .empty{color:var(--muted);text-align:center;padding:30px 10px}
   .miniline{width:100%;height:140px}
+  .planrow{display:flex;align-items:center;gap:12px;cursor:pointer;padding:9px;border:1px solid var(--line);border-radius:13px;background:var(--card)}
+  .planrow img{width:56px;height:56px;border-radius:11px;object-fit:cover;flex:0 0 auto}
+  .mini{background:var(--accent-soft);color:var(--accent);border:none;border-radius:10px;padding:8px 12px;font-size:13.5px;font-weight:650;cursor:pointer;white-space:nowrap;flex:0 0 auto}
   .nav{position:fixed;bottom:0;left:0;right:0;z-index:40;background:color-mix(in srgb,var(--card) 94%,transparent);
     backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;
     height:calc(var(--nav-h) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom)}
@@ -144,6 +147,7 @@
   <p class="h-lead" id="todayDate">Oggi</p>
   <h2 class="title">Ciao Andrea 👋</h2>
   <p class="subtitle">Ecco la tua giornata. I pasti li aggiungi inviando le foto in chat: io aggiorno qui.</p>
+  <div id="tonightCard" class="card pad" style="margin-bottom:14px"></div>
   <div class="card pad" style="margin-bottom:14px">
     <div class="ring-wrap">
       <div class="ring">
@@ -169,6 +173,15 @@
     <div class="stat"><div class="lab">BMI</div><div class="val" style="color:var(--amber)">31,1</div></div>
     <div class="stat"><div class="lab">Proteine obiettivo</div><div class="val">120-140 <small>g</small></div></div>
     <div class="stat"><div class="lab">Fritti / settimana</div><div class="val">1 <small>/ max 3</small></div></div>
+  </div>
+  <div class="card pad" style="margin-bottom:14px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:6px">
+      <h3 style="font-size:18px">📅 Piano della settimana</h3>
+      <button class="mini" onclick="newWeek()">Genera il piano</button>
+    </div>
+    <p style="color:var(--muted);font-size:14px;margin:0 0 10px">7 cene su misura dalle tue ricette: pizza e burger inclusi, una di fibra. Tocca un piatto per la ricetta, ↻ per cambiarlo.</p>
+    <div id="weekPlan"></div>
+    <button class="btn ghost" id="weekSpesaBtn" onclick="weekToSpesa()" style="margin-top:10px">+ Aggiungi tutta la settimana alla spesa</button>
   </div>
   <div class="card pad" style="margin-bottom:14px">
     <h3 style="font-size:18px;margin-bottom:6px">Ultimo pasto registrato</h3>
@@ -462,6 +475,50 @@ overlay.onclick=e=>{if(e.target===overlay)closeR();};
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeR();});
 qEl.oninput=()=>{query=qEl.value.trim().toLowerCase();renderR();};
 renderR();
+
+// ---------- PIANO PASTI ----------
+const dinnerCats=["Secondi di carne","Primi","Burger e panini","Classici"];
+const dinnerPool=R.map((r,i)=>i).filter(i=>R[i].c.some(c=>dinnerCats.includes(c)));
+const dayNames=["Lunedì","Martedì","Mercoledì","Giovedì","Venerdì","Sabato","Domenica"];
+function rnd(a){return a[Math.floor(Math.random()*a.length)]}
+function recipeMini(i,extra){const r=R[i];
+  return '<div class="planrow" onclick="openR('+i+')">'+
+    '<img src="immagini/'+r.img+'" alt="">'+
+    '<div style="flex:1;min-width:0"><div style="font-weight:600">'+r.t+'</div>'+
+    '<div style="color:var(--muted);font-size:13.5px">'+r.kcal+' kcal · '+r.p+' g proteine</div></div>'+(extra||'')+'</div>';
+}
+function suggestTonight(){
+  const i=rnd(dinnerPool);
+  document.getElementById('tonightCard').innerHTML=
+   '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px">'+
+   '<h3 style="font-size:18px">🍽 La cena di stasera</h3>'+
+   '<button class="mini" onclick="event.stopPropagation();suggestTonight()">↻ un\'altra</button></div>'+
+   recipeMini(i,'<button class="mini" onclick="event.stopPropagation();addToSpesa('+i+');this.textContent=\'✓\'">+ spesa</button>');
+}
+function getWeek(){try{return JSON.parse(localStorage.getItem('weekplan')||'null')}catch(e){return null}}
+function setWeek(w){localStorage.setItem('weekplan',JSON.stringify(w))}
+function newWeek(){
+  const used=new Set(); const week=new Array(7).fill(null);
+  function take(fn){const cand=dinnerPool.filter(i=>!used.has(i)&&fn(R[i]));if(!cand.length)return null;const x=rnd(cand);used.add(x);return x;}
+  const p=take(r=>r.c.includes("Classici")); if(p!=null)week[5]=p;
+  const b=take(r=>r.c.includes("Burger e panini")); if(b!=null)week[4]=b;
+  const f=take(r=>/Lenticchie|Chili/.test(r.t)); if(f!=null)week[1]=f;
+  for(let d=0;d<7;d++){ if(week[d]==null){ const x=take(()=>true); week[d]=(x!=null?x:rnd(dinnerPool)); } }
+  setWeek(week); renderWeek();
+}
+function swapDay(d){const w=getWeek();if(!w)return;const used=new Set(w.filter(x=>x!=null));const cand=dinnerPool.filter(i=>!used.has(i));if(!cand.length)return;w[d]=rnd(cand);setWeek(w);renderWeek();}
+function renderWeek(){
+  const w=getWeek(), el=document.getElementById('weekPlan'), btn=document.getElementById('weekSpesaBtn');
+  if(!w){el.innerHTML='<p class="empty">Premi “Genera il piano” per creare 7 cene su misura.</p>';btn.style.display='none';return;}
+  btn.style.display='inline-flex';btn.disabled=false;btn.textContent='+ Aggiungi tutta la settimana alla spesa';
+  let tot=0; w.forEach(i=>{if(i!=null)tot+=R[i].kcal;});
+  el.innerHTML=w.map((i,d)=>'<div style="margin:10px 0"><div style="font-size:13px;color:var(--muted);font-weight:650;margin-bottom:5px">'+dayNames[d]+'</div>'+
+    recipeMini(i,'<button class="mini" onclick="event.stopPropagation();swapDay('+d+')">↻</button>')+'</div>').join('')+
+    '<p style="color:var(--muted);font-size:13.5px;margin:10px 0 0">Totale settimana cene: ~'+tot.toLocaleString('it-IT')+' kcal (media '+Math.round(tot/7)+' a cena)</p>';
+}
+function weekToSpesa(){const w=getWeek();if(!w)return;w.forEach(i=>{if(i!=null)addToSpesa(i)});const b=document.getElementById('weekSpesaBtn');b.textContent='✓ Aggiunti alla spesa';b.disabled=true;}
+suggestTonight();
+renderWeek();
 </script>
 </body>
 </html>
