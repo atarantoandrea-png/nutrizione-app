@@ -283,7 +283,7 @@
 <section id="spesa">
   <p class="h-lead">La spesa</p>
   <h2 class="title">Lista della spesa</h2>
-  <p class="subtitle">Aggiungi una ricetta dalla sua scheda (pulsante “Aggiungi alla spesa”) e gli ingredienti finiscono qui.</p>
+  <p class="subtitle">Aggiungi una ricetta dalla sua scheda (pulsante "Aggiungi alla spesa") e gli ingredienti finiscono qui.</p>
   <div class="card pad" id="spesaList"></div>
   <button class="btn ghost" id="clearSpesa" style="margin-top:14px;display:none">Svuota la lista</button>
 </section>
@@ -413,7 +413,7 @@ function addToSpesa(idx){const a=getSpesa();if(!a.includes(idx)){a.push(idx);set
 function renderSpesa(){
   const el=document.getElementById('spesaList'), a=getSpesa();
   const clr=document.getElementById('clearSpesa');
-  if(!a.length){el.innerHTML='<p class="empty">Lista vuota. Apri una ricetta e tocca “Aggiungi alla spesa”.</p>';clr.style.display='none';return;}
+  if(!a.length){el.innerHTML='<p class="empty">Lista vuota. Apri una ricetta e tocca "Aggiungi alla spesa".</p>';clr.style.display='none';return;}
   clr.style.display='inline-flex';
   let checked=JSON.parse(localStorage.getItem('spesaCheck')||'{}');
   el.innerHTML=a.map(idx=>{const r=R[idx];
@@ -601,14 +601,14 @@ function dayPlan(i,d){
 }
 function renderWeek(){
   const w=getWeek(), el=document.getElementById('weekSummary'), btn=document.getElementById('viewWeekBtn');
-  if(!w){el.innerHTML='<p style=”color:var(--muted);font-size:14px;margin:0”>Premi «↻ Genera» per creare la tua settimana.</p>';if(btn)btn.style.display='none';return;}
+  if(!w){el.innerHTML='<p style="color:var(--muted);font-size:14px;margin:0">Premi «↻ Genera» per creare la tua settimana.</p>';if(btn)btn.style.display='none';return;}
   if(btn)btn.style.display='inline-flex';
   el.innerHTML=w.map((i,d)=>{const r=R[i],dp=dayPlan(i,d);
-    return '<div style=”display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);cursor:pointer” onclick=”openWeekPlan()”>'+
-      '<img src=”immagini/'+r.img+'” style=”width:44px;height:44px;border-radius:9px;object-fit:cover;flex:0 0 auto” alt=””>'+
-      '<div style=”flex:1;min-width:0”><div style=”font-weight:650;font-size:14.5px”>'+dayNames[d]+'</div>'+
-      '<div style=”color:var(--muted);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap”>'+r.t+'</div></div>'+
-      '<span class=”ttag” style=”background:var(--accent-soft);color:var(--accent);flex:0 0 auto;font-size:12px”>~'+dp.tot.toLocaleString(“it-IT”)+'</span></div>';
+    return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);cursor:pointer" onclick="openWeekPlan()">'+
+      '<img src="immagini/'+r.img+'" style="width:44px;height:44px;border-radius:9px;object-fit:cover;flex:0 0 auto" alt="">'+
+      '<div style="flex:1;min-width:0"><div style="font-weight:650;font-size:14.5px">'+dayNames[d]+'</div>'+
+      '<div style="color:var(--muted);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+r.t+'</div></div>'+
+      '<span class="ttag" style="background:var(--accent-soft);color:var(--accent);flex:0 0 auto;font-size:12px">~'+dp.tot.toLocaleString("it-IT")+'</span></div>';
   }).join('');
 }
 function openWeekPlan(){
@@ -619,24 +619,24 @@ function openWeekPlan(){
   el.innerHTML=w.map((i,d)=>{const r=R[i],c=classify(r),dp=dayPlan(i,d);
     totDay+=dp.tot;totP+=r.p;if(c.white)white++;if(c.red||c.burger)red++;if(c.legume)leg++;
     if(c.red||c.pizza||/lenticchie|crostone|piadina|kebab/.test(r.t.toLowerCase()))salty++;
-    return '<div class=”planday”><div class=”day-h”><span>'+dayNames[d]+'</span><span class=”ttag” style=”background:var(--accent-soft);color:var(--accent)”>~'+dp.tot.toLocaleString(“it-IT”)+' kcal</span></div>'+
-      '<div class=”meal-line”>🥪 <b>Spuntino</b> · '+dp.sm.t+'</div>'+
-      '<div class=”meal-line”>🍽️ <b>Pranzo</b> · Herbalife Formula 1</div>'+
-      '<div class=”planrow” style=”margin:6px 0” onclick=”closeWeekPlan();setTimeout(function(){openR('+i+')},80)”><img src=”immagini/'+r.img+'” alt=””>'+
-        '<div style=”flex:1;min-width:0”><div style=”font-weight:600”>🌙 '+r.t+dp.side+'</div>'+
-        '<div style=”color:var(--muted);font-size:13px”>'+dp.dinnerK.toLocaleString(“it-IT”)+' kcal · '+r.p+' g proteine</div></div>'+
-        typeTag(r)+'<button class=”mini” onclick=”event.stopPropagation();swapDay('+d+')”>↻</button></div>'+
-      (dp.pm?'<div class=”meal-line”>🍎 <b>Spuntino pomeriggio</b> · '+dp.pm.t+'</div>':'')+
+    return '<div class="planday"><div class="day-h"><span>'+dayNames[d]+'</span><span class="ttag" style="background:var(--accent-soft);color:var(--accent)">~'+dp.tot.toLocaleString("it-IT")+' kcal</span></div>'+
+      '<div class="meal-line">🥪 <b>Spuntino</b> · '+dp.sm.t+'</div>'+
+      '<div class="meal-line">🍽️ <b>Pranzo</b> · Herbalife Formula 1</div>'+
+      '<div class="planrow" style="margin:6px 0" onclick="closeWeekPlan();setTimeout(function(){openR('+i+')},80)"><img src="immagini/'+r.img+'" alt="">'+
+        '<div style="flex:1;min-width:0"><div style="font-weight:600">🌙 '+r.t+dp.side+'</div>'+
+        '<div style="color:var(--muted);font-size:13px">'+dp.dinnerK.toLocaleString("it-IT")+' kcal · '+r.p+' g proteine</div></div>'+
+        typeTag(r)+'<button class="mini" onclick="event.stopPropagation();swapDay('+d+')">↻</button></div>'+
+      (dp.pm?'<div class="meal-line">🍎 <b>Spuntino pomeriggio</b> · '+dp.pm.t+'</div>':'')+
       '</div>';}).join('');
   const avgP=Math.round(totP/7), avgD=Math.round(totDay/7);
-  const chk=(ok,t)=>'<span class=”ttag” style=”background:'+(ok?'var(--accent-soft);color:var(--accent)':'var(--amber-soft);color:var(--amber)')+'”>'+(ok?'✓ ':'• ')+t+'</span>';
-  el.innerHTML+='<div style=”border-top:1px solid var(--line);margin-top:14px;padding-top:14px”>'+
-    '<div style=”font-weight:650;margin-bottom:9px”>🩺 Quadro salute della settimana</div>'+
-    '<div style=”display:flex;flex-wrap:wrap;gap:7px”>'+
-      chk(avgD>=1700&&avgD<=1900,'~'+avgD.toLocaleString(“it-IT”)+' kcal/giorno')+
+  const chk=(ok,t)=>'<span class="ttag" style="background:'+(ok?'var(--accent-soft);color:var(--accent)':'var(--amber-soft);color:var(--amber)')+'">'+(ok?'✓ ':'• ')+t+'</span>';
+  el.innerHTML+='<div style="border-top:1px solid var(--line);margin-top:14px;padding-top:14px">'+
+    '<div style="font-weight:650;margin-bottom:9px">🩺 Quadro salute della settimana</div>'+
+    '<div style="display:flex;flex-wrap:wrap;gap:7px">'+
+      chk(avgD>=1700&&avgD<=1900,'~'+avgD.toLocaleString("it-IT")+' kcal/giorno')+
       chk(red<=2,'carne rossa '+red+'/sett')+chk(white>=2,'carne bianca '+white)+chk(leg>=1,'fibra/legumi '+leg)+chk(salty<=3,'sere salate '+salty)+
     '</div>'+
-    '<p style=”color:var(--muted);font-size:13px;margin:11px 0 0”>Proteine ~'+avgP+' g a cena. Carne rossa e sale sotto controllo aiutano ferritina e cuore. Frutta ogni giorno + tanta acqua (lì arriva la fibra). Se hai fame: spuntino del pomeriggio o porzione di cena un filo più grande.</p></div>';
+    '<p style="color:var(--muted);font-size:13px;margin:11px 0 0">Proteine ~'+avgP+' g a cena. Carne rossa e sale sotto controllo aiutano ferritina e cuore. Frutta ogni giorno + tanta acqua (lì arriva la fibra). Se hai fame: spuntino del pomeriggio o porzione di cena un filo più grande.</p></div>';
   document.getElementById('weekOverlay').classList.add('open');
   document.body.style.overflow='hidden';
 }
