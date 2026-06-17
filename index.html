@@ -123,6 +123,11 @@
   .planrow img{width:56px;height:56px;border-radius:11px;object-fit:cover;flex:0 0 auto}
   .mini{background:var(--accent-soft);color:var(--accent);border:none;border-radius:10px;padding:8px 12px;font-size:13.5px;font-weight:650;cursor:pointer;white-space:nowrap;flex:0 0 auto}
   .ttag{font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:999px;white-space:nowrap}
+  .planday{border:1px solid var(--line);border-radius:14px;padding:12px 13px;margin:12px 0;background:var(--card)}
+  .day-h{font-weight:650;display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
+  .meal-line{font-size:14.5px;padding:3px 0}
+  .meal-line.opt{color:var(--muted)}
+  .meal-line b{font-weight:650}
   .nav{position:fixed;bottom:0;left:0;right:0;z-index:40;background:color-mix(in srgb,var(--card) 94%,transparent);
     backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;
     height:calc(var(--nav-h) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom)}
@@ -180,7 +185,7 @@
       <h3 style="font-size:18px">📅 Piano della settimana</h3>
       <button class="mini" onclick="newWeek()">Genera il piano</button>
     </div>
-    <p style="color:var(--muted);font-size:14px;margin:0 0 10px">7 cene su misura dalle tue ricette: pizza e burger inclusi, una di fibra. Tocca un piatto per la ricetta, ↻ per cambiarlo.</p>
+    <p style="color:var(--muted);font-size:14px;margin:0 0 10px">La tua settimana completa: spuntino, pranzo Herbalife e cena (~1.000-1.200 kcal), per stare intorno a ~1.600 kcal al giorno. Tocca la cena per la ricetta, ↻ per cambiarla.</p>
     <div id="weekPlan"></div>
     <button class="btn ghost" id="weekSpesaBtn" onclick="weekToSpesa()" style="margin-top:10px">+ Aggiungi tutta la settimana alla spesa</button>
   </div>
@@ -546,27 +551,46 @@ function swapDay(d){const w=getWeek();if(!w)return;const used=new Set(w.filter(x
   let cand=dinnerPool.filter(i=>!used.has(i)&&!classify(R[i]).pizza&&(reds<2||!classify(R[i]).red));
   if(!cand.length)cand=dinnerPool.filter(i=>!used.has(i));
   if(!cand.length)return;w[d]=rnd(cand);setWeek(w);renderWeek();}
+function dayPlan(i,d){
+  const r=R[i];
+  const sm=[{t:"Banana",k:90},{t:"Mela",k:80},{t:"Yogurt liquido alla fragola",k:120}][d%3];
+  const lunchK=270, gap=1100-r.kcal; let side="",sideK=0;
+  if(gap>250){side=" + patatine in friggitrice ad aria";sideK=330;}
+  else if(gap>120){side=" + pane o 1 frutto";sideK=150;}
+  const dinnerK=r.kcal+sideK; let sub=sm.k+lunchK+dinnerK, pm=null;
+  if(sub<1500){pm={t:"Yogurt greco o 1 frutto",k:150};sub+=pm.k;}
+  return {sm:sm,dinnerK:dinnerK,side:side,pm:pm,tot:sub};
+}
 function renderWeek(){
   const w=getWeek(), el=document.getElementById('weekPlan'), btn=document.getElementById('weekSpesaBtn');
-  if(!w){el.innerHTML='<p class="empty">Premi “Genera il piano” per creare 7 cene su misura.</p>';btn.style.display='none';return;}
+  if(!w){el.innerHTML='<p class="empty">Premi “Genera il piano” per creare la settimana.</p>';btn.style.display='none';return;}
   btn.style.display='inline-flex';btn.disabled=false;btn.textContent='+ Aggiungi tutta la settimana alla spesa';
-  let tot=0,totP=0,white=0,red=0,leg=0;
-  w.forEach(i=>{if(i==null)return;const r=R[i],c=classify(r);tot+=r.kcal;totP+=r.p;if(c.white)white++;if(c.red||c.burger)red++;if(c.legume)leg++;});
-  const avgP=Math.round(totP/7);
-  el.innerHTML=w.map((i,d)=>{const r=R[i];
-    const tip=classify(r).lowP?'<div style="color:var(--amber);font-size:12.5px;margin-top:5px">💡 cena povera di proteine: aggiungi 100 g di affettato magro o uno yogurt greco</div>':'';
-    return '<div style="margin:12px 0"><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="font-size:13px;color:var(--muted);font-weight:650">'+dayNames[d]+'</span>'+typeTag(r)+'</div>'+
-    recipeMini(i,'<button class="mini" onclick="event.stopPropagation();swapDay('+d+')">↻</button>')+tip+'</div>';}).join('');
+  let totDay=0,totP=0,white=0,red=0,leg=0,salty=0;
+  el.innerHTML=w.map((i,d)=>{const r=R[i],c=classify(r),dp=dayPlan(i,d);
+    totDay+=dp.tot;totP+=r.p;if(c.white)white++;if(c.red||c.burger)red++;if(c.legume)leg++;
+    if(c.red||c.pizza||/lenticchie|crostone|piadina|kebab/.test(r.t.toLowerCase()))salty++;
+    return '<div class="planday"><div class="day-h"><span>'+dayNames[d]+'</span><span class="ttag" style="background:var(--accent-soft);color:var(--accent)">~'+dp.tot.toLocaleString("it-IT")+' kcal</span></div>'+
+      '<div class="meal-line">🥪 <b>Spuntino</b> · '+dp.sm.t+'</div>'+
+      '<div class="meal-line">🍽️ <b>Pranzo</b> · Herbalife Formula 1</div>'+
+      '<div class="planrow" style="margin:6px 0" onclick="openR('+i+')"><img src="immagini/'+r.img+'" alt="">'+
+        '<div style="flex:1;min-width:0"><div style="font-weight:600">🌙 '+r.t+dp.side+'</div>'+
+        '<div style="color:var(--muted);font-size:13px">'+dp.dinnerK.toLocaleString("it-IT")+' kcal · '+r.p+' g proteine</div></div>'+
+        typeTag(r)+'<button class="mini" onclick="event.stopPropagation();swapDay('+d+')">↻</button></div>'+
+      (dp.pm?'<div class="meal-line opt">🍎 <b>Spuntino pom.</b> (se hai fame) · '+dp.pm.t+'</div>':'')+
+      '</div>';}).join('');
+  const avgP=Math.round(totP/7), avgD=Math.round(totDay/7);
   const chk=(ok,t)=>'<span class="ttag" style="background:'+(ok?'var(--accent-soft);color:var(--accent)':'var(--amber-soft);color:var(--amber)')+'">'+(ok?'✓ ':'• ')+t+'</span>';
   el.innerHTML+='<div style="border-top:1px solid var(--line);margin-top:14px;padding-top:14px">'+
-    '<div style="font-weight:650;margin-bottom:9px">Equilibrio della settimana</div>'+
+    '<div style="font-weight:650;margin-bottom:9px">🩺 Quadro salute della settimana</div>'+
     '<div style="display:flex;flex-wrap:wrap;gap:7px">'+
-     chk(avgP>=27,'proteine ~'+avgP+' g/cena')+chk(red<=2,'carne rossa '+red+'/sett')+chk(white>=2,'carne bianca '+white)+chk(leg>=1,'fibra '+leg+' sera')+
+      chk(avgD>=1500&&avgD<=1750,'~'+avgD.toLocaleString("it-IT")+' kcal/giorno')+
+      chk(red<=2,'carne rossa '+red+'/sett')+chk(white>=2,'carne bianca '+white)+chk(leg>=1,'fibra/legumi '+leg)+chk(salty<=3,'sere salate '+salty)+
     '</div>'+
-    '<p style="color:var(--muted);font-size:13px;margin:11px 0 0">Totale cene ~'+tot.toLocaleString('it-IT')+' kcal (media '+Math.round(tot/7)+' a cena). Completa ogni giorno con un frutto (mela o banana) e tanta acqua: lì prendi la fibra e le vitamine che mancano, visto il no-verdura.</p></div>';
+    '<p style="color:var(--muted);font-size:13px;margin:11px 0 0">Proteine ~'+avgP+' g a cena. Carne rossa e sale sotto controllo aiutano ferritina e cuore. Frutta ogni giorno + tanta acqua (lì arriva la fibra). Se hai fame: spuntino del pomeriggio o porzione di cena un filo più grande.</p></div>';
 }
 function weekToSpesa(){const w=getWeek();if(!w)return;w.forEach(i=>{if(i!=null)addToSpesa(i)});const b=document.getElementById('weekSpesaBtn');b.textContent='✓ Aggiunti alla spesa';b.disabled=true;}
 suggestTonight();
+if(!getWeek())setWeek([28,36,4,12,33,7,37]);
 renderWeek();
 </script>
 </body>
