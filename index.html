@@ -8,6 +8,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="NutriCoach">
 <title>NutriCoach — la mia nutrizione</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
 <style>
   :root{
     --bg:#f4f5f2; --card:#ffffff; --ink:#19211d; --muted:#697069;
@@ -201,8 +204,27 @@
     </div>
   </div>
   <div class="card pad">
-    <h3 style="font-size:18px;margin-bottom:10px">Passi di oggi <span class="pill warn">in arrivo</span></h3>
-    <p style="color:var(--muted);margin:0;font-size:15px">Il contapassi con GPS si attiverà quando installi l'app sul telefono. Per ora concentriamoci su alimentazione e camminata.</p>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px">
+      <h3 style="font-size:18px">👟 Passi di oggi</h3>
+      <span class="pill" id="stepGoalPill">obiettivo 6.000</span>
+    </div>
+    <div class="ring-wrap">
+      <div class="ring">
+        <svg viewBox="0 0 120 120" width="120" height="120">
+          <circle cx="60" cy="60" r="52" fill="none" stroke="var(--line)" stroke-width="11"/>
+          <circle id="stepArc" cx="60" cy="60" r="52" fill="none" stroke="var(--accent)" stroke-width="11" stroke-linecap="round" transform="rotate(-90 60 60)" stroke-dasharray="0 327"/>
+        </svg>
+        <div class="ctr"><b id="stepNow">0</b><s>passi</s></div>
+      </div>
+      <div style="flex:1;min-width:160px">
+        <div class="grid2" style="gap:10px">
+          <div class="stat"><div class="lab">Distanza</div><div class="val" id="stepKm">0,0 <small>km</small></div></div>
+          <div class="stat"><div class="lab">Calorie</div><div class="val" id="stepKcal">0 <small>kcal</small></div></div>
+        </div>
+        <button class="btn" id="stepBtn" style="margin-top:12px;width:100%;justify-content:center">▶ Avvia contapassi</button>
+      </div>
+    </div>
+    <p id="stepNote" style="color:var(--muted);font-size:13px;margin:12px 0 0">Tocca «Avvia», dai il permesso al movimento e cammina tenendo il telefono con te (schermo acceso, app aperta).</p>
   </div>
 </section>
 
@@ -593,6 +615,49 @@ function weekToSpesa(){const w=getWeek();if(!w)return;w.forEach(i=>{if(i!=null)a
 suggestTonight();
 if(!getWeek())setWeek([28,36,4,12,33,7,37]);
 renderWeek();
+
+// ---------- SERVICE WORKER (installazione PWA) ----------
+if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{})); }
+
+// ---------- CONTAPASSI ----------
+(function(){
+  const STRIDE=0.72, GOAL=6000;
+  const elNow=document.getElementById('stepNow'), elKm=document.getElementById('stepKm'),
+        elKcal=document.getElementById('stepKcal'), elArc=document.getElementById('stepArc'),
+        btn=document.getElementById('stepBtn'), note=document.getElementById('stepNote'),
+        goalPill=document.getElementById('stepGoalPill');
+  const todayKey='steps_'+new Date().toISOString().slice(0,10);
+  let steps=parseInt(localStorage.getItem(todayKey)||'0'), running=false, lastPeak=0;
+  function paint(){
+    elNow.textContent=steps.toLocaleString('it-IT');
+    elKm.innerHTML=(steps*STRIDE/1000).toFixed(1).replace('.',',')+' <small>km</small>';
+    elKcal.innerHTML=Math.round(steps*0.04)+' <small>kcal</small>';
+    const C=2*Math.PI*52; elArc.setAttribute('stroke-dasharray',(Math.min(1,steps/GOAL)*C)+' '+C);
+  }
+  function save(){localStorage.setItem(todayKey,String(steps));}
+  function onMotion(e){
+    const a=e.accelerationIncludingGravity||e.acceleration; if(!a)return;
+    const m=Math.sqrt((a.x||0)*(a.x||0)+(a.y||0)*(a.y||0)+(a.z||0)*(a.z||0));
+    const t=Date.now();
+    if(m>12 && (t-lastPeak)>320){ lastPeak=t; steps++; paint(); if(steps%5===0)save(); }
+  }
+  function start(){ running=true; btn.textContent='⏸ Ferma';
+    note.textContent='Sto contando… cammina col telefono con te, schermo acceso. (Da web i passi si contano con l\'app aperta.)';
+    window.addEventListener('devicemotion',onMotion); }
+  function stop(){ running=false; btn.textContent='▶ Riprendi'; save(); window.removeEventListener('devicemotion',onMotion);
+    note.textContent='Contapassi in pausa. Oggi: '+steps.toLocaleString('it-IT')+' passi salvati.'; }
+  btn.onclick=async()=>{
+    if(running){stop();return;}
+    if(!window.isSecureContext){ note.textContent='Il contapassi richiede HTTPS: apri il link sicuro (https://) e reinstalla l\'app dalla Home.'; return; }
+    if(typeof DeviceMotionEvent!=='undefined' && typeof DeviceMotionEvent.requestPermission==='function'){
+      try{ const p=await DeviceMotionEvent.requestPermission(); if(p!=='granted'){ note.textContent='Permesso al movimento negato. Tocca di nuovo «Avvia» e scegli «Consenti».'; return; } }
+      catch(err){ note.textContent='Apri l\'app dalla schermata Home (icona) per dare il permesso ai sensori.'; return; }
+    }
+    start();
+  };
+  goalPill.textContent='obiettivo '+GOAL.toLocaleString('it-IT');
+  paint();
+})();
 </script>
 </body>
 </html>
