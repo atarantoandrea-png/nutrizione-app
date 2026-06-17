@@ -34,7 +34,7 @@
   .wrap{max-width:1060px;margin:0 auto;padding:0 16px}
   .brand{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 85%,transparent);
     backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line)}
-  .brand-in{max-width:1060px;margin:0 auto;padding:14px 16px;display:flex;align-items:center;gap:10px}
+  .brand-in{max-width:1060px;margin:0 auto;padding:calc(14px + env(safe-area-inset-top)) 16px 14px;display:flex;align-items:center;gap:10px}
   .logo{width:34px;height:34px;border-radius:10px;background:var(--accent);color:#fff;display:flex;
     align-items:center;justify-content:center;font-weight:700;font-size:18px;flex:0 0 auto}
   .brand b{font-size:18px;font-weight:650}
@@ -65,7 +65,7 @@
   .goals{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
   .goals button{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 14px;border-radius:12px;font-size:14.5px;cursor:pointer;font-weight:550}
   .goals button.on{background:var(--accent);border-color:var(--accent);color:#fff}
-  .toolbar{position:sticky;top:63px;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);
+  .toolbar{position:sticky;top:calc(63px + env(safe-area-inset-top));z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);
     backdrop-filter:blur(8px);padding:10px 0;margin-bottom:4px}
   #q{width:100%;padding:13px 15px;border:1px solid var(--line);border-radius:13px;background:var(--card);color:var(--ink);font-size:16px;outline:none}
   #q:focus{border-color:var(--accent)}
@@ -221,10 +221,10 @@
           <div class="stat"><div class="lab">Distanza</div><div class="val" id="stepKm">0,0 <small>km</small></div></div>
           <div class="stat"><div class="lab">Calorie</div><div class="val" id="stepKcal">0 <small>kcal</small></div></div>
         </div>
-        <button class="btn" id="stepBtn" style="margin-top:12px;width:100%;justify-content:center">▶ Avvia contapassi</button>
+        <button class="btn" id="stepBtn" style="margin-top:12px;width:100%;justify-content:center;display:none">👟 Dai permesso ai passi</button>
       </div>
     </div>
-    <p id="stepNote" style="color:var(--muted);font-size:13px;margin:12px 0 0">Tocca «Avvia», dai il permesso al movimento e cammina tenendo il telefono con te (schermo acceso, app aperta).</p>
+    <p id="stepNote" style="color:var(--muted);font-size:13px;margin:12px 0 0">Il contapassi si avvia in automatico. ⚠️ Su iPhone da web conta solo con l'app aperta e lo schermo acceso — limite iOS.</p>
   </div>
 </section>
 
@@ -641,22 +641,33 @@ if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.s
     const t=Date.now();
     if(m>12 && (t-lastPeak)>320){ lastPeak=t; steps++; paint(); if(steps%5===0)save(); }
   }
-  function start(){ running=true; btn.textContent='⏸ Ferma';
-    note.textContent='Sto contando… cammina col telefono con te, schermo acceso. (Da web i passi si contano con l\'app aperta.)';
-    window.addEventListener('devicemotion',onMotion); }
-  function stop(){ running=false; btn.textContent='▶ Riprendi'; save(); window.removeEventListener('devicemotion',onMotion);
-    note.textContent='Contapassi in pausa. Oggi: '+steps.toLocaleString('it-IT')+' passi salvati.'; }
-  btn.onclick=async()=>{
-    if(running){stop();return;}
-    if(!window.isSecureContext){ note.textContent='Il contapassi richiede HTTPS: apri il link sicuro (https://) e reinstalla l\'app dalla Home.'; return; }
+  function start(){
+    running=true; btn.style.display='none';
+    note.textContent='Sto contando… tieni il telefono con te. ⚠️ Su iPhone da web conta solo con l\'app aperta e lo schermo acceso — limite iOS. Per i passi in background usa Apple Salute.';
+    window.addEventListener('devicemotion',onMotion);
+  }
+  function showPermBtn(){
+    btn.style.display='flex';
+    note.textContent='Tocca per autorizzare il sensore di movimento e iniziare a contare.';
+  }
+  async function tryAutoStart(){
+    if(!window.isSecureContext){ note.textContent='Richiede HTTPS: apri il link https:// e reinstalla l\'app.'; return; }
     if(typeof DeviceMotionEvent!=='undefined' && typeof DeviceMotionEvent.requestPermission==='function'){
-      try{ const p=await DeviceMotionEvent.requestPermission(); if(p!=='granted'){ note.textContent='Permesso al movimento negato. Tocca di nuovo «Avvia» e scegli «Consenti».'; return; } }
-      catch(err){ note.textContent='Apri l\'app dalla schermata Home (icona) per dare il permesso ai sensori.'; return; }
-    }
-    start();
+      try{
+        const p=await DeviceMotionEvent.requestPermission();
+        if(p==='granted'){ start(); } else { showPermBtn(); }
+      } catch(e){ showPermBtn(); }
+    } else { start(); }
+  }
+  btn.onclick=async()=>{
+    if(!window.isSecureContext){ note.textContent='Richiede HTTPS.'; return; }
+    try{
+      const p=await DeviceMotionEvent.requestPermission();
+      if(p==='granted'){ start(); } else { note.textContent='Permesso negato. Tocca di nuovo e scegli «Consenti».'; }
+    } catch(err){ note.textContent='Apri l\'app dalla schermata Home (icona PWA) per dare il permesso.'; }
   };
   goalPill.textContent='obiettivo '+GOAL.toLocaleString('it-IT');
-  paint();
+  paint(); tryAutoStart();
 })();
 </script>
 </body>
