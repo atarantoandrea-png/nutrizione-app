@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Installa · Nutrizionista</title>
+
+<script>
+  (function(){
+    var standalone = window.navigator.standalone === true ||
+      (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+    if (standalone) { window.location.replace('/'); }
+  })();
+</script>
+
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#16a34a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Nutrizionista">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --green:#22c55e; --green-dark:#16a34a; --green-glow:rgba(34,197,94,.18);
+  --bg:#0a0f0a; --bg2:#111811; --card:rgba(20,30,20,.75);
+  --border:rgba(34,197,94,.18); --border-soft:rgba(255,255,255,.07);
+  --txt:#f0f4f0; --txt-soft:#9db49d; --txt-dim:#5a7a5a;
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+  color:var(--txt);
+  min-height:100vh; min-height:100dvh;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -5%, rgba(34,197,94,.12), transparent 65%),
+    radial-gradient(ellipse 60% 50% at 50% 105%, rgba(22,163,74,.08), transparent 60%),
+    var(--bg);
+  background-attachment:fixed;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:28px 20px calc(28px + env(safe-area-inset-bottom));
+}
+.card{
+  width:100%; max-width:420px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:32px 24px 28px;
+  text-align:center;
+  backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+  box-shadow:0 20px 60px rgba(0,0,0,.6), 0 0 0 1px var(--border-soft) inset;
+  animation:rise .55s cubic-bezier(.2,.8,.25,1) both;
+}
+@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.icon-wrap{
+  width:96px;height:96px;margin:0 auto 16px;position:relative;
+}
+.icon-wrap::after{
+  content:"";position:absolute;inset:-12px;border-radius:50%;
+  background:radial-gradient(circle,var(--green-glow),transparent 70%);
+  filter:blur(10px);pointer-events:none;
+}
+.app-icon{
+  position:relative;z-index:1;
+  width:96px;height:96px;border-radius:22px;object-fit:cover;
+  border:1px solid rgba(34,197,94,.25);
+  box-shadow:0 8px 24px rgba(0,0,0,.5);
+}
+h1{
+  font-size:24px;font-weight:700;letter-spacing:-.01em;
+  color:var(--txt);margin-bottom:6px;
+}
+.tagline{font-size:15px;color:var(--txt-soft);line-height:1.5;margin-bottom:0}
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:22px 0}
+
+.btn{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  width:100%;border:none;cursor:pointer;
+  font-size:16px;font-weight:600;letter-spacing:.01em;
+  border-radius:14px;padding:15px 20px;
+  transition:transform .12s ease,box-shadow .2s ease,opacity .15s;
+}
+.btn:active{transform:scale(.975);opacity:.9}
+.btn-primary{
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+  color:#fff;
+  box-shadow:0 6px 22px rgba(34,197,94,.35);
+}
+.btn-primary:hover{box-shadow:0 8px 28px rgba(34,197,94,.5)}
+.btn-ghost{
+  background:transparent;color:var(--green);
+  border:1.5px solid var(--border);margin-top:10px;font-weight:500;
+}
+.btn-ghost:hover{background:var(--green-glow)}
+
+.steps{text-align:left;margin-top:2px}
+.steps-title{
+  font-size:11px;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--green);
+  margin-bottom:16px;text-align:center;opacity:.8;
+}
+.step{display:flex;gap:14px;align-items:flex-start;margin-bottom:16px}
+.step-num{
+  flex-shrink:0;width:28px;height:28px;border-radius:50%;
+  background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;
+  font-weight:700;font-size:13px;
+  display:flex;align-items:center;justify-content:center;margin-top:1px;
+  box-shadow:0 3px 10px rgba(34,197,94,.3);
+}
+.step-txt{font-size:15px;line-height:1.45;color:var(--txt);padding-top:4px}
+.step-txt strong{color:var(--txt);font-weight:600}
+.ios-share{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:24px;height:24px;vertical-align:-6px;margin:0 2px;
+  border-radius:6px;background:rgba(34,197,94,.12);border:1px solid var(--border);
+}
+.ios-share svg{width:14px;height:14px;fill:none;stroke:var(--green);stroke-width:1.8}
+.hint{
+  font-size:13px;color:var(--txt-dim);text-align:center;
+  margin-top:6px;line-height:1.45;
+}
+.success{
+  display:none;align-items:center;justify-content:center;gap:8px;
+  background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);
+  color:#86efac;border-radius:12px;padding:12px;font-size:15px;
+  font-weight:500;margin-top:10px;
+}
+.success.show{display:flex;animation:rise .4s ease both}
+[hidden]{display:none!important}
+footer{
+  margin-top:20px;font-size:12px;color:var(--txt-dim);letter-spacing:.03em;opacity:.6;
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="icon-wrap">
+    <img class="app-icon" src="/apple-touch-icon.png" alt="Nutrizionista">
+  </div>
+  <h1>Nutrizionista</h1>
+  <p class="tagline">Il tuo piano alimentare personale</p>
+
+  <div class="divider"></div>
+
+  <!-- ANDROID / DESKTOP: pulsante installa nativo -->
+  <button class="btn btn-primary" id="installBtn" hidden>Installa l'app</button>
+
+  <!-- ISTRUZIONI iOS -->
+  <div class="steps" id="iosSteps" hidden>
+    <p class="steps-title">Installa su iPhone / iPad</p>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-txt">Tocca l'icona <span class="ios-share"><svg viewBox="0 0 24 24"><path d="M12 15V4M12 4l-4 4M12 4l4 4M5 12v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></span> <strong>Condividi</strong> nella barra di Safari</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-txt">Scorri e tocca <strong>"Aggiungi a Home"</strong></div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-txt">Tocca <strong>Aggiungi</strong> in alto a destra</div>
+    </div>
+    <p class="hint">L'icona apparirà sulla schermata Home — aprila per accedere all'app</p>
+  </div>
+
+  <!-- ISTRUZIONI ANDROID fallback -->
+  <div class="steps" id="androidSteps" hidden>
+    <p class="steps-title">Installa su Android</p>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-txt">Tocca il menu <strong>⋮</strong> in alto a destra del browser</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-txt">Tocca <strong>"Installa app"</strong> o <strong>"Aggiungi a schermata Home"</strong></div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-txt">Conferma con <strong>Installa</strong></div>
+    </div>
+    <p class="hint">Se vedi il popup automatico in basso, tocca direttamente "Installa"</p>
+  </div>
+
+  <div class="success" id="installedMsg">App installata!</div>
+
+  <div class="divider"></div>
+
+  <a class="btn btn-ghost" href="/">Apri l'app nel browser</a>
+</div>
+
+<footer>Nutrizionista personale · uso privato</footer>
+
+<script>
+(function(){
+  var ua = navigator.userAgent || '';
+  var isIOS = /iPad|iPhone|iPod/.test(ua) ||
+              (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var standalone = window.navigator.standalone === true ||
+    (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+
+  var installBtn   = document.getElementById('installBtn');
+  var iosSteps     = document.getElementById('iosSteps');
+  var androidSteps = document.getElementById('androidSteps');
+  var installedMsg = document.getElementById('installedMsg');
+
+  if (standalone) {
+    installedMsg.classList.add('show');
+  } else if (isIOS) {
+    iosSteps.hidden = false;
+  } else {
+    androidSteps.hidden = false;
+  }
+
+  var deferred = null;
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault();
+    deferred = e;
+    androidSteps.hidden = true;
+    installBtn.hidden = false;
+  });
+
+  installBtn.addEventListener('click', async function(){
+    if (!deferred) return;
+    deferred.prompt();
+    var res = await deferred.userChoice;
+    if (res.outcome === 'accepted') {
+      installBtn.hidden = true;
+      installedMsg.classList.add('show');
+    }
+    deferred = null;
+  });
+
+  window.addEventListener('appinstalled', function(){
+    installBtn.hidden = true;
+    androidSteps.hidden = true;
+    installedMsg.classList.add('show');
+  });
+})();
+</script>
+</body>
+</html>
