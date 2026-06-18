@@ -193,16 +193,12 @@
     </div>
     <div id="weekSummary"><p style="color:var(--muted);font-size:14px;margin:0">Premi «↻ Genera» per creare la tua settimana personalizzata.</p></div>
   </div>
-  <div class="card pad" style="margin-bottom:14px">
-    <h3 style="font-size:18px;margin-bottom:6px">Ultimo pasto registrato</h3>
-    <div class="meal" style="border:none;padding-bottom:0">
-      <div class="dot" style="background:var(--red)"></div>
-      <div>
-        <div style="font-weight:600">Cena · 16 giugno</div>
-        <div style="color:var(--muted);font-size:15px">Crostoni di pane, mozzarella e prosciutto crudo (9 fette)</div>
-        <div style="margin-top:6px"><span class="pill bad">~1.990 kcal</span> <span class="pill">110 g proteine</span></div>
-      </div>
+  <div class="card pad" style="margin-bottom:14px;cursor:pointer" onclick="go('diario')">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <h3 style="font-size:18px;margin:0">Cronologia pasti</h3>
+      <span style="color:var(--accent);font-size:14px;font-weight:600">Vedi tutto →</span>
     </div>
+    <div id="cronHome"></div>
   </div>
   <div class="card pad">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px">
@@ -243,9 +239,9 @@
 
 <section id="diario">
   <p class="h-lead">Il diario</p>
-  <h2 class="title">Cosa ho mangiato</h2>
-  <p class="subtitle">Invia le foto dei pasti in chat: stimo calorie e proteine e li registro qui.</p>
-  <div class="card pad" id="diaryList"></div>
+  <h2 class="title">Cronologia pasti</h2>
+  <p class="subtitle">Tutto quello che hai mangiato, giorno per giorno — valori nutrizionali e valutazione.</p>
+  <div id="cronList"></div>
 </section>
 
 <section id="corpo">
@@ -370,21 +366,93 @@ function setGoal(g){
 document.querySelectorAll('#goals button').forEach(b=>b.onclick=()=>setGoal(b.dataset.g));
 setGoal('dim');
 
-const diary=[
- {date:"16 giugno",meal:"Cena",desc:"Crostoni di pane di grano duro con mozzarella, olio, pepe, origano + 200 g prosciutto crudo (9 fette)",kcal:1990,p:110,sem:"bad",
-  note:"Ottime proteine, ma porzione e sale alti (≈10-11 g, il doppio del consigliato) e mangiata tardi. 6-7 fette + 150 g prosciutto sarebbero bastate (-400 kcal)."}
+const foodLog=[
+  {date:"16 giugno",iso:"2026-06-16",target:1700,
+   meals:[
+     {time:"22:00",tipo:"Cena",desc:"Crostoni pane grano duro con mozzarella, olio, origano + 200g prosciutto crudo (9 fette)",kcal:1990,p:110,g:60,c:130}
+   ],
+   review:{sem:"bad",testo:"Proteine ottime (110g) ma porzione enorme a tarda sera. Calorie +290 sul target. Sale ≥10-11g, il doppio del consigliato. Migliorare: 6-7 fette di prosciutto bastano, anticipare la cena alle 19-20."}},
+  {date:"17 giugno",iso:"2026-06-17",target:1700,
+   meals:[
+     {time:"12:30",tipo:"Pranzo",desc:"Herbalife",kcal:200,p:18,g:5,c:22},
+     {time:"17:00",tipo:"Merenda",desc:"Banana",kcal:90,p:1,g:0,c:23},
+     {time:"22:00",tipo:"Cena",desc:"Popeyes Combo — Coca Cola, panino bacon+formaggio+pollo fritto (~300g), 5 strisce croccanti, salse BBQ+speciale (3/4 bicchiere), patatine con cheddar (~200g)",kcal:2080,p:62,g:98,c:165}
+   ],
+   review:{sem:"bad",testo:"Giornata molto sbilanciata: 290 kcal fino alle 22:00, poi 2.080 kcal in un colpo solo. Totale +670 sul target (2.370 kcal). Grassi quasi al doppio del consigliato (98g). Migliorare: cenare entro le 20:00, preferire pollo grigliato, bevanda zero o acqua."}},
+  {date:"18 giugno",iso:"2026-06-18",target:1700,
+   meals:[
+     {time:"12:00",tipo:"Colazione",desc:"Nutella (~12g, cucchiaino abbondante)",kcal:65,p:1,g:3,c:7},
+     {time:"14:30",tipo:"Pranzo",desc:"Herbalife",kcal:200,p:18,g:5,c:22},
+     {time:"17:00",tipo:"Merenda",desc:"Banana",kcal:90,p:1,g:0,c:23},
+     {time:"22:00",tipo:"Cena",desc:"Pizza fina intera — mozzarella, pomodoro, salame",kcal:890,p:40,g:32,c:101}
+   ],
+   review:{sem:"ok",testo:"Buon recupero dopo la sera precedente. Totale 1.245 kcal (-455 sul target). Proteine basse (60g — puntare a 80g+). Zero fibre nella giornata. Migliorare: colazione proteica, aggiungere almeno una fonte di fibra."}}
 ];
-function renderDiary(){
-  const el=document.getElementById('diaryList');
-  if(!diary.length){el.innerHTML='<p class="empty">Ancora nessun pasto. Mandami la prima foto in chat!</p>';return;}
-  const col={bad:'var(--red)',warn:'var(--amber)',ok:'var(--accent)'};
-  el.innerHTML=diary.map(m=>'<div class="meal"><div class="dot" style="background:'+col[m.sem]+'"></div>'+
-    '<div><div style="font-weight:600">'+m.meal+' · '+m.date+'</div>'+
-    '<div style="color:var(--muted);font-size:15px;margin:2px 0 7px">'+m.desc+'</div>'+
-    '<div><span class="pill '+(m.sem==='bad'?'bad':m.sem==='warn'?'warn':'')+'">~'+m.kcal.toLocaleString('it-IT')+' kcal</span> <span class="pill">'+m.p+' g proteine</span></div>'+
-    '<div style="color:var(--muted);font-size:14px;margin-top:8px">'+m.note+'</div></div></div>').join('');
+
+function semColor(s){return s==='bad'?'var(--red)':s==='warn'?'var(--amber)':'var(--accent)';}
+function semLabel(s){return s==='bad'?'⚠ Giornata pesante':s==='warn'?'⚠ Attenzione':'Giornata ok';}
+
+function renderCronologia(){
+  const el=document.getElementById('cronList');
+  if(!el)return;
+  if(!foodLog.length){el.innerHTML='<div class="card pad"><p class="empty">Nessun pasto registrato.</p></div>';return;}
+  el.innerHTML=foodLog.slice().reverse().map(day=>{
+    const tot={kcal:0,p:0,g:0,c:0};
+    day.meals.forEach(m=>{tot.kcal+=m.kcal;tot.p+=m.p;tot.g+=m.g;tot.c+=m.c;});
+    const delta=tot.kcal-day.target;
+    const deltaStr=(delta>0?'+':'')+delta.toLocaleString('it-IT')+' kcal';
+    const deltaCol=delta>0?'var(--red)':delta<-100?'var(--accent)':'var(--amber)';
+    const pct=Math.min(100,Math.round(tot.kcal/day.target*100));
+    return '<div class="card pad" style="margin-bottom:14px">'+
+      '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">'+
+        '<div><div style="font-weight:700;font-size:17px">'+day.date+'</div>'+
+        '<div style="color:var(--muted);font-size:13px;margin-top:2px">'+
+          tot.kcal.toLocaleString('it-IT')+' kcal &nbsp;·&nbsp; target '+day.target.toLocaleString('it-IT')+
+          ' &nbsp;·&nbsp; <span style="color:'+deltaCol+';font-weight:600">'+deltaStr+'</span></div></div>'+
+        '<div style="text-align:right;font-size:13px;color:var(--muted);line-height:1.7">'+
+          'P <b style="color:var(--accent)">'+tot.p+'g</b><br>G <b>'+tot.g+'g</b> &nbsp; C <b>'+tot.c+'g</b></div></div>'+
+      '<div style="height:5px;border-radius:3px;background:var(--line);margin-bottom:12px;overflow:hidden">'+
+        '<div style="height:100%;width:'+pct+'%;background:'+(tot.kcal>day.target?'var(--red)':'var(--accent)')+';border-radius:3px"></div></div>'+
+      day.meals.map((m,i)=>
+        '<div style="display:flex;gap:12px;padding:9px 0;'+(i<day.meals.length-1?'border-bottom:1px solid var(--line)':'')+'">'+
+          '<div style="width:44px;color:var(--muted);font-size:12px;flex-shrink:0;padding-top:2px">'+m.time+'</div>'+
+          '<div style="flex:1">'+
+            '<div style="font-weight:600;font-size:15px">'+m.tipo+'</div>'+
+            '<div style="color:var(--muted);font-size:13px;margin:2px 0 6px;line-height:1.4">'+m.desc+'</div>'+
+            '<div style="display:flex;flex-wrap:wrap;gap:5px">'+
+              '<span class="pill">'+m.kcal.toLocaleString('it-IT')+' kcal</span>'+
+              '<span class="pill">P '+m.p+'g</span>'+
+              '<span class="pill">G '+m.g+'g</span>'+
+              '<span class="pill">C '+m.c+'g</span></div></div></div>'
+      ).join('')+
+      '<div style="margin-top:12px;padding:10px 12px;border-radius:10px;border-left:3px solid '+semColor(day.review.sem)+';background:rgba(0,0,0,.15)">'+
+        '<div style="font-weight:600;font-size:13px;color:'+semColor(day.review.sem)+';margin-bottom:4px">'+semLabel(day.review.sem)+'</div>'+
+        '<div style="font-size:14px;color:var(--muted);line-height:1.5">'+day.review.testo+'</div></div></div>';
+  }).join('');
 }
-renderDiary();
+
+function renderCronHome(){
+  const el=document.getElementById('cronHome');
+  if(!el||!foodLog.length)return;
+  const day=foodLog[foodLog.length-1];
+  const tot={kcal:0,p:0};
+  day.meals.forEach(m=>{tot.kcal+=m.kcal;tot.p+=m.p;});
+  const pct=Math.min(100,Math.round(tot.kcal/day.target*100));
+  const over=tot.kcal>day.target;
+  el.innerHTML=
+    '<div style="font-size:13px;color:var(--muted);margin-bottom:8px">'+day.date+' · '+day.meals.length+' pasti registrati</div>'+
+    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:9px">'+
+      '<div style="flex:1;height:6px;border-radius:3px;background:var(--line);overflow:hidden">'+
+        '<div style="height:100%;width:'+pct+'%;background:'+(over?'var(--red)':'var(--accent)')+';border-radius:3px"></div></div>'+
+      '<div style="font-size:14px;font-weight:600;white-space:nowrap;color:'+(over?'var(--red)':'inherit')+'">'+
+        tot.kcal.toLocaleString('it-IT')+' / '+day.target.toLocaleString('it-IT')+' kcal</div></div>'+
+    '<div style="display:flex;gap:6px;flex-wrap:wrap">'+
+      day.meals.map(m=>'<span style="font-size:12px;color:var(--muted)">'+m.time+' '+m.tipo+'</span>').join('<span style="color:var(--line)"> · </span>')+
+    '</div>';
+}
+
+renderCronologia();
+renderCronHome();
 
 const H=1.72;
 function bmiCatName(b){return b<18.5?"Sottopeso":b<25?"Normopeso":b<30?"Sovrappeso":"Obesità";}
