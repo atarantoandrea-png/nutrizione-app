@@ -200,29 +200,6 @@
     </div>
     <div id="cronHome"></div>
   </div>
-  <div class="card pad">
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px">
-      <h3 style="font-size:18px">👟 Passi di oggi</h3>
-      <span class="pill" id="stepGoalPill">obiettivo 6.000</span>
-    </div>
-    <div class="ring-wrap">
-      <div class="ring">
-        <svg viewBox="0 0 120 120" width="120" height="120">
-          <circle cx="60" cy="60" r="52" fill="none" stroke="var(--line)" stroke-width="11"/>
-          <circle id="stepArc" cx="60" cy="60" r="52" fill="none" stroke="var(--accent)" stroke-width="11" stroke-linecap="round" transform="rotate(-90 60 60)" stroke-dasharray="0 327"/>
-        </svg>
-        <div class="ctr"><b id="stepNow">0</b><s>passi</s></div>
-      </div>
-      <div style="flex:1;min-width:160px">
-        <div class="grid2" style="gap:10px">
-          <div class="stat"><div class="lab">Distanza</div><div class="val" id="stepKm">0,0 <small>km</small></div></div>
-          <div class="stat"><div class="lab">Calorie</div><div class="val" id="stepKcal">0 <small>kcal</small></div></div>
-        </div>
-        <button class="btn" id="stepBtn" style="margin-top:12px;width:100%;justify-content:center;display:none">👟 Dai permesso ai passi</button>
-      </div>
-    </div>
-    <p id="stepNote" style="color:var(--muted);font-size:13px;margin:12px 0 0">Il contapassi si avvia in automatico. ⚠️ Su iPhone da web conta solo con l'app aperta e lo schermo acceso — limite iOS.</p>
-  </div>
 </section>
 
 <section id="ricette">
@@ -375,17 +352,18 @@ const foodLog=[
   {date:"17 giugno",iso:"2026-06-17",target:1700,
    meals:[
      {time:"12:30",tipo:"Pranzo",desc:"Herbalife + banana",kcal:290,p:19,g:5,c:45},
-     {time:"19:00",tipo:"Merenda",desc:"Mezzo frappe' grande senza panna (gelato + latte, ~300 ml)",kcal:250,p:8,g:11,c:29},
+     {time:"17:00",tipo:"Merenda",desc:"Banana",kcal:90,p:1,g:0,c:23},
      {time:"22:00",tipo:"Cena",desc:"Popeyes Combo — Coca Cola, panino bacon+formaggio+pollo fritto (~300g), 5 strisce croccanti, salse BBQ+speciale (3/4 bicchiere), patatine con cheddar (~200g)",kcal:2080,p:62,g:98,c:165}
    ],
-   review:{sem:"bad",testo:"Giornata molto sbilanciata: 290 kcal fino alle 22:00 (Herbalife+banana a pranzo), poi 2.080 kcal in un colpo solo a tarda notte. Totale +670 sul target (2.370 kcal). Grassi quasi al doppio del consigliato (98g). Migliorare: cenare entro le 20:00, preferire pollo grigliato, bevanda zero o acqua."}},
+   review:{sem:"bad",testo:"Giornata molto sbilanciata: 380 kcal durante il giorno, poi 2.080 kcal in un colpo solo a tarda notte. Totale +760 sul target (2.460 kcal). Grassi quasi al doppio del consigliato (103g). Migliorare: cenare entro le 20:00, preferire pollo grigliato, bevanda zero o acqua."}},
   {date:"18 giugno",iso:"2026-06-18",target:1700,
    meals:[
      {time:"12:00",tipo:"Colazione",desc:"Nutella (~12g, cucchiaino abbondante)",kcal:65,p:1,g:3,c:7},
      {time:"14:30",tipo:"Pranzo",desc:"Herbalife + banana",kcal:290,p:19,g:5,c:45},
+     {time:"19:00",tipo:"Merenda",desc:"Mezzo frappe' grande senza panna (gelato + latte, ~300 ml)",kcal:250,p:8,g:11,c:29},
      {time:"22:00",tipo:"Cena",desc:"Pizza fina intera — mozzarella, pomodoro, salame",kcal:890,p:40,g:32,c:101}
    ],
-   review:{sem:"ok",testo:"Giornata sotto target. Totale 1.495 kcal (-205 sul target). Proteine ancora basse (68g — puntare a 80g+). Zero fibre nella giornata. Migliorare: colazione proteica, aggiungere almeno una fonte di fibra."}}
+   review:{sem:"ok",testo:"Giornata sotto target. Totale 1.495 kcal (-205 sul target). Proteine basse (68g — puntare a 80g+). Zero fibre nella giornata. Migliorare: colazione proteica, aggiungere una fonte di fibra."}}
 ];
 
 function semColor(s){return s==='bad'?'var(--red)':s==='warn'?'var(--amber)':'var(--accent)';}
@@ -773,58 +751,6 @@ renderWeek();
 // ---------- SERVICE WORKER (installazione PWA) ----------
 if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{})); }
 
-// ---------- CONTAPASSI ----------
-(function(){
-  const STRIDE=0.72, GOAL=6000;
-  const elNow=document.getElementById('stepNow'), elKm=document.getElementById('stepKm'),
-        elKcal=document.getElementById('stepKcal'), elArc=document.getElementById('stepArc'),
-        btn=document.getElementById('stepBtn'), note=document.getElementById('stepNote'),
-        goalPill=document.getElementById('stepGoalPill');
-  const todayKey='steps_'+new Date().toISOString().slice(0,10);
-  let steps=parseInt(localStorage.getItem(todayKey)||'0'), running=false, lastPeak=0, avgX=0, avgY=0, avgZ=0;
-  function paint(){
-    elNow.textContent=steps.toLocaleString('it-IT');
-    elKm.innerHTML=(steps*STRIDE/1000).toFixed(1).replace('.',',')+' <small>km</small>';
-    elKcal.innerHTML=Math.round(steps*0.04)+' <small>kcal</small>';
-    const C=2*Math.PI*52; elArc.setAttribute('stroke-dasharray',(Math.min(1,steps/GOAL)*C)+' '+C);
-  }
-  function save(){localStorage.setItem(todayKey,String(steps));}
-  function onMotion(e){
-    const a=e.accelerationIncludingGravity; if(!a)return;
-    const x=a.x||0,y=a.y||0,z=a.z||0;
-    avgX=0.85*avgX+0.15*x; avgY=0.85*avgY+0.15*y; avgZ=0.85*avgZ+0.15*z;
-    const m=Math.sqrt((x-avgX)*(x-avgX)+(y-avgY)*(y-avgY)+(z-avgZ)*(z-avgZ));
-    const t=Date.now();
-    if(m>2.5&&(t-lastPeak)>450){lastPeak=t;steps++;paint();if(steps%5===0)save();}
-  }
-  function start(){
-    running=true; btn.style.display='none';
-    note.textContent='Sto contando… tieni il telefono con te. ⚠️ Su iPhone da web conta solo con l\'app aperta e lo schermo acceso — limite iOS. Per i passi in background usa Apple Salute.';
-    window.addEventListener('devicemotion',onMotion);
-  }
-  function showPermBtn(){
-    btn.style.display='flex';
-    note.textContent='Tocca per autorizzare il sensore di movimento e iniziare a contare.';
-  }
-  async function tryAutoStart(){
-    if(!window.isSecureContext){ note.textContent='Richiede HTTPS: apri il link https:// e reinstalla l\'app.'; return; }
-    if(typeof DeviceMotionEvent!=='undefined' && typeof DeviceMotionEvent.requestPermission==='function'){
-      try{
-        const p=await DeviceMotionEvent.requestPermission();
-        if(p==='granted'){ start(); } else { showPermBtn(); }
-      } catch(e){ showPermBtn(); }
-    } else { start(); }
-  }
-  btn.onclick=async()=>{
-    if(!window.isSecureContext){ note.textContent='Richiede HTTPS.'; return; }
-    try{
-      const p=await DeviceMotionEvent.requestPermission();
-      if(p==='granted'){ start(); } else { note.textContent='Permesso negato. Tocca di nuovo e scegli «Consenti».'; }
-    } catch(err){ note.textContent='Apri l\'app dalla schermata Home (icona PWA) per dare il permesso.'; }
-  };
-  goalPill.textContent='obiettivo '+GOAL.toLocaleString('it-IT');
-  paint(); tryAutoStart();
-})();
 </script>
 </body>
 </html>
