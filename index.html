@@ -757,26 +757,33 @@ renderWeek();
 // ---------- SERVICE WORKER (installazione PWA) ----------
 if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{})); }
 
-/* ---------- Sincronizzazione con Atlas (nutrizione condivisa) ---------- */
+/* ---------- Atlas È la Nutrizione: il diario è condiviso con Atlas ---------- */
 (function(){
   var KEY='atlas-nutri-key-7f3k9x2m';
   var EP='https://atlas.178.104.199.138.sslip.io/api/nutrition?key='+KEY;
-  function bar(v,m,c){var p=Math.min(100,Math.round((v/(m||1))*100));return '<div style="background:rgba(255,255,255,.08);border-radius:8px;height:10px;overflow:hidden"><div style="height:100%;width:'+p+'%;background:'+c+'"></div></div>';}
-  function render(d){
-    if(!d||typeof d.kcal==='undefined')return;
-    var meals=d.meals||[],days=d.all||{},keys=Object.keys(days).sort().slice(-7),chart='';
-    if(keys.length){var mx=1;keys.forEach(function(k){var s=days[k].reduce(function(a,m){return a+(+m.kcal||0);},0);if(s>mx)mx=s;});
-      chart='<div style="display:flex;align-items:flex-end;gap:6px;height:48px;margin-top:12px">'+keys.map(function(k){var s=days[k].reduce(function(a,m){return a+(+m.kcal||0);},0);var h=Math.max(4,Math.round(s/mx*42));return '<div style="flex:1;text-align:center"><div style="height:'+h+'px;background:#2f9bff;border-radius:4px"></div><div style="font-size:9px;color:#8b93a7;margin-top:3px">'+k.slice(8)+'</div></div>';}).join('')+'</div>';}
-    var html='<div style="font-size:11px;letter-spacing:.2em;color:#8fb6ff;text-transform:uppercase;margin-bottom:10px">Oggi - sincronizzato con Atlas</div>'+
-      '<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>Calorie</span><span>'+d.kcal+' / '+d.targetKcal+' kcal</span></div>'+bar(d.kcal,d.targetKcal,'#2f9bff')+
-      '<div style="display:flex;justify-content:space-between;font-size:13px;margin:12px 0 4px"><span>Proteine</span><span>'+d.prot+' / '+d.targetProt+' g</span></div>'+bar(d.prot,d.targetProt,'#4fd6d0')+
-      (meals.length?'<div style="font-size:13px;color:#c9d2e6;margin-top:12px;line-height:1.6">'+meals.map(function(m){return '- '+m.alimento+' - '+m.kcal+' kcal';}).join('<br>')+'</div>':'<div style="font-size:13px;color:#8b93a7;margin-top:12px">Nessun pasto registrato oggi. Dillo ad Atlas!</div>')+chart;
-    var card=document.createElement('div');
-    card.style.cssText='max-width:760px;margin:14px auto;padding:16px 18px;background:rgba(18,22,33,.94);border:1px solid rgba(143,182,255,.4);border-radius:16px;color:#f0f3fa;font-family:-apple-system,system-ui,sans-serif;position:relative;z-index:50';
-    card.innerHTML=html;
-    document.body.insertBefore(card,document.body.firstChild);
+  var MESI=['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
+  function lbl(iso){var p=iso.split('-');return parseInt(p[2],10)+' '+(MESI[parseInt(p[1],10)-1]||'');}
+  function hhmm(t){if(!t)return '';var d=new Date(t);return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);}
+  function mapMeal(m){return {time:m.time||hhmm(m.t),tipo:m.tipo||'Pasto',desc:m.desc||m.alimento||'',kcal:+m.kcal||0,p:+m.proteine||+m.p||0,g:+m.grassi||+m.g||0,c:+m.carbo||+m.c||0};}
+  function sem(delta){return delta>300?'bad':delta>50?'warn':'ok';}
+  function apply(d){
+    if(!d||!d.all)return;
+    var all=d.all,meta=d.meta||{},isos=Object.keys(all).sort();
+    if(!isos.length)return;
+    var built=isos.map(function(iso){
+      var meals=(all[iso]||[]).map(mapMeal);
+      var tot=meals.reduce(function(a,m){return a+m.kcal;},0);
+      var mt=meta[iso]||{},target=mt.target||1800;
+      var rev=mt.review||{sem:sem(tot-target),testo:'Giornata registrata con Atlas: '+tot.toLocaleString('it-IT')+' kcal su un obiettivo di '+target.toLocaleString('it-IT')+'.'};
+      return {date:lbl(iso),iso:iso,target:target,meals:meals,review:rev};
+    });
+    if(typeof foodLog!=='undefined'){ foodLog.length=0; built.forEach(function(x){foodLog.push(x);}); }
+    if(typeof kcalToday!=='undefined'){ kcalToday=d.kcal||0; }
+    try{ if(typeof drawRing==='function')drawRing(); }catch(e){}
+    try{ if(typeof renderCronologia==='function')renderCronologia(); }catch(e){}
+    try{ if(typeof renderCronHome==='function')renderCronHome(); }catch(e){}
   }
-  fetch(EP).then(function(r){return r.json();}).then(render).catch(function(){});
+  fetch(EP).then(function(r){return r.json();}).then(apply).catch(function(){});
 })();
 
 </script>
